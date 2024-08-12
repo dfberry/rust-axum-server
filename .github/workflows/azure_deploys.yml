@@ -1,8 +1,8 @@
 name: Deploy to Azure Container App
 
 env:
-  AZURE_CONTAINER_APP_NAME: demo-rust-container
-  AZURE_GROUP_NAME: demo-rust-container
+  AZURE_CONTAINER_APP_NAME: dfberrycontainerapp
+  AZURE_GROUP_NAME: rust-axum-server
   AZURE_CONTAINER_REGISTRY: dfberryregistry
   IMAGE_NAME: server-source-board
 on:
