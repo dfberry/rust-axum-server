@@ -4,7 +4,7 @@
 ## az login --use-device-code
 ##
 
-# Set variables - onlu use alphanumeric characters (no dashes or underscores)
+# Set variables - only use alphanumeric characters (no dashes or underscores)
 AZURE_SUBSCRIPTION_ID="<your-subscription-id>"
 AZURE_RESOURCE_GROUP="<your-resource-group>"
 AZURE_LOCATION="<your-location>"
@@ -23,6 +23,14 @@ az acr create --subscription $AZURE_SUBSCRIPTION_ID --resource-group $AZURE_RESO
 # Create Azure Container App environment
 az containerapp env create --subscription $AZURE_SUBSCRIPTION_ID --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_CONTAINER_APP_ENV_NAME --location $AZURE_LOCATION
 
-
 # Create Azure container app
 az containerapp create --subscription $AZURE_SUBSCRIPTION_ID --resource-group $AZURE_RESOURCE_GROUP --name $AZURE_CONTAINER_APP_NAME --environment ${AZURE_CONTAINER_APP_ENV_NAME}
+
+# Enable ingress for Azure Container App
+az containerapp ingress enable \
+--subscription $AZURE_SUBSCRIPTION_ID \
+--name $AZURE_CONTAINER_APP_NAME \
+--resource-group $AZURE_RESOURCE_GROUP \
+--target-port $TARGET_PORT \
+--transport http \
+--type external 
