@@ -1,4 +1,11 @@
-AZURE_SUBSCRIPTION_ID=19016922-4bf5-4c41-9553-8eff5da1500e
+#!/bin/bash
+
+## Prerequisites
+## az login --use-device-code
+##
+
+# Set variables - onlu use alphanumeric characters (no dashes or underscores)
+AZURE_SUBSCRIPTION_ID="<your-subscription-id>"
 
 az ad sp create-for-rbac \
 --name "CICD" \
