@@ -5,13 +5,13 @@
 ##
 
 # Set variables - only use alphanumeric characters (no dashes or underscores)
-AZURE_SUBSCRIPTION_ID="<your-subscription-id>"
-AZURE_RESOURCE_GROUP="<your-resource-group>"
-AZURE_LOCATION="<your-location>"
+AZURE_SUBSCRIPTION_ID="19016922-4bf5-4c41-9553-8eff5da1500e"
+AZURE_RESOURCE_GROUP="axum-rust-blog-3"
+AZURE_LOCATION="eastus2"
 
-AZURE_CONTAINER_REGISTRY_NAME="<your-container-registry-name>"
-AZURE_CONTAINER_APP_ENV_NAME="<your-container-app-env-name>"
-AZURE_CONTAINER_APP_NAME="<your-container-app-name>"
+AZURE_CONTAINER_REGISTRY_NAME="dfberryregistry3"
+AZURE_CONTAINER_APP_ENV_NAME="dfberryenv3"
+AZURE_CONTAINER_APP_NAME="dfberryapp3"
 
 
 # Create Azure resource group
