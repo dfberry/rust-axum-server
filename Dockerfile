@@ -24,5 +24,8 @@ WORKDIR /app
 # Copy the built binary from the builder stage
 COPY --from=builder /app/target/release/dfberry-rust-axum-server-source-board /usr/local/bin/app
 
+# Expose port 3000
+EXPOSE 3000
+
 # Set the entrypoint to the built binary
 ENTRYPOINT ["/usr/local/bin/app"]

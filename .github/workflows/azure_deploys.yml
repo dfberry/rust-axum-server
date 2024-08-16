@@ -4,7 +4,7 @@ env:
   AZURE_CONTAINER_APP_NAME: dfberrycontainerapp
   AZURE_GROUP_NAME: rust-axum-server
   AZURE_CONTAINER_REGISTRY: dfberryregistry
-  IMAGE_NAME: server-source-board
+  IMAGE_NAME: server-source-board-rust
 on:
   # Automatically trigger it when detected changes in repo. Remove comments to enable
   #push:
@@ -41,7 +41,6 @@ jobs:
           push: true
           tags: |
             ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
           file: ./Dockerfile
 
   deploy:
