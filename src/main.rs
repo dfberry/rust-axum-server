@@ -10,20 +10,22 @@ use axum::{
         IntoResponse, 
         Response
     }, 
-    routing::get, 
+    routing::{get, post}, 
     Router, 
     http::StatusCode,
-    body::Body
+    body::Body,
+    extract::{Path, Query, Json}
 };
-
+use serde::Deserialize;
 use std::env;
 use urlencoding::encode;
-use octocrab::Octocrab;
-// use serde::Serialize;
 use serde_json::json;
 
 mod config;
 use config::Config;
+
+mod github;
+use github::GitHub;
 
 #[tokio::main]
 async fn main() {
@@ -44,6 +46,7 @@ async fn main() {
     let app = Router::new()
         .route("/", get(handler))
         .route("/github/user", get(github_user_handler))
+        .route("/github/repo", post(github_repo_handler))
         .route("/config", get(handler_config)); // Add the shared config to the application state;
 
     // run it
@@ -79,45 +82,68 @@ async fn handler() -> Html<String> {
 
     Html(html_content)
 }
-// #[derive(Serialize)]
-// struct GitHubUserResponse {
-//     status: String,
-// }
-// #[derive(Deserialize)]
-// struct GitHubUser {
-//     login: String,
-//     id: u64,
-//     // Add other fields as needed
-// }
-async fn github_user_handler() -> impl IntoResponse {
+
+#[derive(Deserialize)]
+struct UserQueryParams {
+    username: String,
+}
+async fn github_user_handler(Query(params): Query<UserQueryParams>) -> impl IntoResponse {
+
     let env_config = Config::from_env();
     let token = env_config.pat.clone();
-    let octocrab = Octocrab::builder().personal_token(token).build().unwrap();
+    let username = params.username;
 
-    match octocrab
-    .repos("dfberry", "azure-notes")
-    .get()
-    .await
-{
-    Ok(repo) => {
-        let json_repo = json!(repo);
+    match GitHub::user_profile(&token,&username).await {
+        Ok(repo) => {
+            let json_repo = json!(repo);
 
-        Response::builder()
-            .header(http::header::CONTENT_TYPE, "application/json")
-            .status(StatusCode::OK)
-            .body(Body::from(json_repo.to_string()))
-            .unwrap()
-    }
-    Err(e) => {
-        let error_message = json!({ "error": e.to_string() });
-        let error_body = Body::from(error_message.to_string());
-
-        Response::builder()
-            .status(StatusCode::INTERNAL_SERVER_ERROR)
-            .body(error_body)
-            .unwrap()
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
     }
 }
+#[derive(Deserialize)]
+struct RepoRequestBody {
+    token: String,
+    org_or_user: String,
+    repo_name: String,
+}
+async fn github_repo_handler(Json(payload): Json<RepoRequestBody>) -> impl IntoResponse {
+
+    let env_config = Config::from_env();
+
+    let token = payload.token;
+    let org_or_owner = payload.org_or_user;
+    let repo_name = payload.repo_name;
+
+    match GitHub::repo(&token, &org_or_owner, &repo_name ).await {
+        Ok(repo) => {
+            let json_repo = json!(repo);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
 }
 
 async fn handler_config() -> Html<String> {

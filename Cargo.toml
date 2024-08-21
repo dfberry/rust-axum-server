@@ -16,6 +16,7 @@ octocrab = "0.39.0"
 http = "1.1.0"
 dotenv = "0.15.0"
 tower = "0.5.0"
+anyhow = "1.0.86" 
 
 [[bin]]
 name = "dfberry-rust-axum-server-source-board"

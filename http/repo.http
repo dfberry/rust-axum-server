@@ -1,0 +1,8 @@
+POST http://localhost:3000/github/repo HTTP/1.1
+content-type: application/json
+
+{
+    "token": "",
+    "org_or_user": "dfberry",
+    "repo_name": "azure-notes"
+}
