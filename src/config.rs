@@ -21,6 +21,7 @@ pub struct EnvFile {
     pub github_redirect_uri: String,
     pub github_scope: String,
     pub port: String,
+    pub environment: String,
 }
 
 #[derive(Debug)]
@@ -45,6 +46,7 @@ impl Config {
         let github_password = env::var("GITHUB_PASSWORD")?;
         let github_redirect_uri = env::var("GITHUB_REDIR_URL")?;
         let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+        let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
 
         let env_file = EnvFile {
             pat,
@@ -53,10 +55,15 @@ impl Config {
             github_redirect_uri,
             github_scope: "user".to_string(),
             port,
+            environment: environment.clone(),
         };
 
+        // Print out the env_file
+        println!("{:?}", env_file);
+
         // Toml file
-        let file_path = "../Cargo.toml";
+        // Determine the file path based on the environment
+        let file_path = "./Cargo.toml";
         let cargo_toml_content = async_fs::read_to_string(file_path)
             .await
             .map_err(|e| format!("Failed to read {}: {}", file_path, e))?;
@@ -67,6 +74,10 @@ impl Config {
             name: cargo_toml.package.name,
             version: cargo_toml.package.version,
         };
+
+        // Print out the package
+        println!("{:?}", package);
+
         Ok(Config {
             env_file,
             package,
