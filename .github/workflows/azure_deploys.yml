@@ -26,6 +26,11 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v2
 
+      - name: Print out app version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | sed -E 's/version = "(.*)"/\1/')
+          echo "APP_VERSION=${VERSION}" >>${GITHUB_ENV}
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
