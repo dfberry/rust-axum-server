@@ -20,6 +20,9 @@ use serde::Deserialize;
 use std::env;
 use urlencoding::encode;
 use serde_json::json;
+use tokio::fs;
+use toml;
+
 
 mod config;
 use config::Config;
@@ -57,6 +60,21 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
+#[derive(Deserialize)]
+struct CargoToml {
+    // Define the fields according to your Cargo.toml structure
+    package: Package,
+    dependencies: Option<toml::Value>,
+    // Add other fields as necessary
+}
+
+#[derive(Deserialize)]
+struct Package {
+    name: String,
+    version: String,
+    // Add other fields as necessary
+}
+
 async fn handler() -> Html<String> {
     let client_id = "Ov23liq4S3T2Ht4KUKBR";
     let redirect_uri = "http://localhost:3000/callback";
@@ -73,6 +91,16 @@ async fn handler() -> Html<String> {
         "<h1><a href=\"{}\">Login</a></h1><p>",
         login_url
     );
+
+    let cargo_toml_content = std::fs::read_to_string("Cargo.toml").expect("Failed to read Cargo.toml");
+    let cargo_toml: CargoToml = toml::from_str(&cargo_toml_content).expect("Failed to parse Cargo.toml");
+
+    // Use cargo_toml as needed
+    println!("Package name: {}", cargo_toml.package.name);
+    println!("Package version: {}", cargo_toml.package.version);
+
+    // Include the version in the response
+    html_content.push_str(&format!("<h2>Version: {}</h2>", cargo_toml.package.version));
 
     html_content.push_str("<h2>Environment Variables:</h2><ul>");
     for (key, value) in env::vars() {

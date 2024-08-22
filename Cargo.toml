@@ -1,6 +1,6 @@
 [package]
 name = "dfberry-rust-axum-server-source-board"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 publish = false
 
@@ -17,6 +17,7 @@ http = "1.1.0"
 dotenv = "0.15.0"
 tower = "0.5.0"
 anyhow = "1.0.86" 
+toml = "0.8.19"
 
 [[bin]]
 name = "dfberry-rust-axum-server-source-board"
