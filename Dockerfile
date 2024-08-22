@@ -25,7 +25,7 @@ WORKDIR /app
 COPY --from=builder /app/target/release/dfberry-rust-axum-server-source-board /usr/local/bin/app
 
 # Copy the Cargo.toml file from the builder stage for name and version of app
-COPY --from=builder /app/Cargo.toml /usr/local/bin/app/Cargo.toml
+COPY --from=builder /app/Cargo.toml /usr/local/bin/Cargo.toml
 
 # Expose port 3000
 EXPOSE 3000
