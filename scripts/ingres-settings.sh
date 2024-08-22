@@ -22,9 +22,8 @@ while IFS='=' read -r key value; do
   echo "$key=$value"
 done < $DOTENV_PATH
 
-az containerapp show \
+
+az containerapp ingress show \
 --subscription $AZ_SUB_ID \
 --name $AZ_APP_NAME \
---resource-group $AZ_RG \
---query properties.configuration.ingress.fqdn \
---output tsv
+--resource-group $AZ_RG 

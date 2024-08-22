@@ -12,12 +12,20 @@ use axum::{
     }, 
     routing::{get, post}, 
     Router, 
-    http::StatusCode,
+    http::{
+        StatusCode,
+        HeaderMap
+    },
     body::Body,
-    extract::{Path, Query, Json}
+    extract::{Path, Query, Json, Extension},
+};
+use axum_extra::{
+    headers::{authorization::Bearer, Authorization},
+    TypedHeader,
 };
 use serde::Deserialize;
 use std::env;
+use std::sync::{Arc, RwLock};
 use urlencoding::encode;
 use serde_json::json;
 use tokio::fs;
@@ -25,17 +33,45 @@ use toml;
 
 
 mod config;
-use config::Config;
+use config::{
+    Config,
+    Package,
+    EnvFile
+};
+
 
 mod github;
 use github::GitHub;
+
+#[derive(Clone)]
+pub struct AppState {
+    config: Arc<RwLock<Config>>,
+}
 
 #[tokio::main]
 async fn main() {
 
     // Get the port from the environment variable
-    let env_config = Config::from_env();
-    let port = env_config.port.clone();
+    let env_config = match Config::get().await {
+        Ok(env_config) => env_config,
+        Err(e) => {
+            eprintln!("Failed to get config: {}", e);
+            std::process::exit(1);
+        }
+    };
+
+    // Construct AppState with Arc and RwLock
+    let app_state = AppState {
+        config: Arc::new(RwLock::new(env_config)),
+    };
+
+    // Wrap the AppState in an Arc to share it across handlers
+    let shared_state = {
+        let app_state = app_state.clone();
+        Arc::new(app_state)
+    };
+    
+    let port = &shared_state.config.read().unwrap().env_file.port;
     println!("PORT: {}", port);
 
     let addr = format!("0.0.0.0:{}", port);
@@ -50,7 +86,8 @@ async fn main() {
         .route("/", get(handler))
         .route("/github/user", get(github_user_handler))
         .route("/github/repo", post(github_repo_handler))
-        .route("/config", get(handler_config)); // Add the shared config to the application state;
+        .route("/config", get(handler_config))
+        .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
     // run it
     let listener = tokio::net::TcpListener::bind(&addr)
@@ -60,22 +97,7 @@ async fn main() {
     axum::serve(listener, app).await.unwrap();
 }
 
-#[derive(Deserialize)]
-struct CargoToml {
-    // Define the fields according to your Cargo.toml structure
-    package: Package,
-    dependencies: Option<toml::Value>,
-    // Add other fields as necessary
-}
-
-#[derive(Deserialize)]
-struct Package {
-    name: String,
-    version: String,
-    // Add other fields as necessary
-}
-
-async fn handler() -> Html<String> {
+async fn handler(Extension(state): Extension<Arc<AppState>>) -> Html<String> {
     let client_id = "Ov23liq4S3T2Ht4KUKBR";
     let redirect_uri = "http://localhost:3000/callback";
     let scope = "user";
@@ -87,26 +109,11 @@ async fn handler() -> Html<String> {
         client_id, encoded_redirect_uri, encoded_scope
     );
 
-    let mut html_content = format!(
-        "<h1><a href=\"{}\">Login</a></h1><p>",
-        login_url
-    );
 
-    let cargo_toml_content = std::fs::read_to_string("Cargo.toml").expect("Failed to read Cargo.toml");
-    let cargo_toml: CargoToml = toml::from_str(&cargo_toml_content).expect("Failed to parse Cargo.toml");
 
-    // Use cargo_toml as needed
-    println!("Package name: {}", cargo_toml.package.name);
-    println!("Package version: {}", cargo_toml.package.version);
-
-    // Include the version in the response
-    html_content.push_str(&format!("<h2>Version: {}</h2>", cargo_toml.package.version));
-
-    html_content.push_str("<h2>Environment Variables:</h2><ul>");
-    for (key, value) in env::vars() {
-        html_content.push_str(&format!("<li>{}: {}</li>", key, value));
-    }
-    html_content.push_str("</ul>");
+        let html_content = format!(
+            "<h1><a href=\"{login_url}\">Login</a></h1>"
+        );
 
     Html(html_content)
 }
@@ -115,10 +122,10 @@ async fn handler() -> Html<String> {
 struct UserQueryParams {
     username: String,
 }
-async fn github_user_handler(Query(params): Query<UserQueryParams>) -> impl IntoResponse {
+async fn github_user_handler(Extension(state): Extension<Arc<AppState>>, Query(params): Query<UserQueryParams>) -> impl IntoResponse {
 
-    let env_config = Config::from_env();
-    let token = env_config.pat.clone();
+
+    let token = state.config.read().unwrap().env_file.pat.clone();
     let username = params.username;
 
     match GitHub::user_profile(&token,&username).await {
@@ -146,9 +153,7 @@ struct RepoRequestBody {
     org_or_user: String,
     repo_name: String,
 }
-async fn github_repo_handler(Json(payload): Json<RepoRequestBody>) -> impl IntoResponse {
-
-    let env_config = Config::from_env();
+async fn github_repo_handler(Extension(state): Extension<Arc<AppState>>, Json(payload): Json<RepoRequestBody>) -> impl IntoResponse {
 
     let token = payload.token;
     let org_or_owner = payload.org_or_user;
@@ -174,8 +179,37 @@ async fn github_repo_handler(Json(payload): Json<RepoRequestBody>) -> impl IntoR
     }
 }
 
-async fn handler_config() -> Html<String> {
-    let env_config = Config::from_env();
+async fn handler_config(
+    Extension(state): Extension<Arc<AppState>>
+) -> Html<String> {
+    // Collect environment variables
+    let env_vars: String = env::vars()
+        .map(|(key, value)| format!("<li>{}: {}</li>", key, value))
+        .collect::<Vec<String>>()
+        .join("");
 
-    Html(format!("Config: {:?}", env_config))
+    // Collect app state
+    let app_state = state.config.read().unwrap();
+    let app_state_html = format!(
+        "<h2>App State:</h2>
+        <ul>
+            <li>Version: {}</li>
+            <li>GitHub Client ID: {}</li>
+            <li>GitHub Client Redir: {}</li>
+        </ul>",
+        app_state.package.version,
+        app_state.env_file.github_client_id,
+        app_state.env_file.github_redirect_uri
+    );
+
+    // Combine all information into HTML content
+    let html_content = format!(
+        "{app_state_html}
+        <h2>Environment Variables:</h2>
+        <ul>{env_vars}</ul>",
+        app_state_html = app_state_html,
+        env_vars = env_vars
+    );
+
+    Html(html_content)
 }

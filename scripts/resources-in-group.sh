@@ -1,9 +1,5 @@
 #!/bin/bash
 
-## Prerequisites
-## az login --use-device-code
-##
-
 DOTENV_PATH="../.env"
 
 # Load environment variables from .env file into the script's environment
@@ -22,9 +18,7 @@ while IFS='=' read -r key value; do
   echo "$key=$value"
 done < $DOTENV_PATH
 
-az containerapp show \
---subscription $AZ_SUB_ID \
---name $AZ_APP_NAME \
---resource-group $AZ_RG \
---query properties.configuration.ingress.fqdn \
---output tsv
+az resource list \
+  --subscription $AZ_SUB_ID \
+  --resource-group $AZ_RG \
+  --output table
