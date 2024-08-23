@@ -23,6 +23,7 @@ use axum_extra::{
     headers::{authorization::Bearer, Authorization},
     TypedHeader,
 };
+use octocrab::models;
 use serde::Deserialize;
 use std::env;
 use std::sync::{Arc, RwLock};
@@ -37,6 +38,16 @@ use config::{
     Config,
     Package,
     EnvFile
+};
+
+mod schema;
+mod database;
+use database::{
+    User, 
+    NewUser,
+    establish_connection,
+    list_users,
+    create_user
 };
 
 
@@ -87,6 +98,8 @@ async fn main() {
         .route("/github/user", get(github_user_handler))
         .route("/github/repo", post(github_repo_handler))
         .route("/github/query/issue", post(github_query_issue_handler))
+        .route("/user", post(db_user_new_handler))
+        .route("/users", get(db_users_all_handler))
         .route("/config", get(handler_config))
         .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
@@ -207,7 +220,38 @@ async fn github_query_issue_handler(Extension(state): Extension<Arc<AppState>>, 
         }
     }
 }
+#[derive(Deserialize)]
+struct NewUserRequestBody {
+    github_user: String,
+}
+async fn db_user_new_handler(Extension(state): Extension<Arc<AppState>>, Json(payload): Json<NewUserRequestBody>) -> impl IntoResponse {
+    let mut connection = database::establish_connection();
+    let github_user = payload.github_user.clone();
 
+
+    let user = create_user(&mut connection, &github_user).await;
+
+    let json_user = json!(user);
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_user.to_string()))
+        .unwrap()
+}
+async fn db_users_all_handler(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+    let mut connection = database::establish_connection();
+
+    let users = list_users(&mut connection).await;
+
+    let json_users = json!(users);
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_users.to_string()))
+        .unwrap()
+}
 async fn handler_config(
     Extension(state): Extension<Arc<AppState>>
 ) -> Html<String> {

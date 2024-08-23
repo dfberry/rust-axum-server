@@ -6,7 +6,6 @@ use dotenv::dotenv;
 use tokio::fs as async_fs;
 //use urlencoding::encode;
 
-
 #[derive(Deserialize, Debug)]
 pub struct Package {
     pub name: String,
@@ -22,6 +21,7 @@ pub struct EnvFile {
     pub github_scope: String,
     pub port: String,
     pub environment: String,
+    pub database_url: String,
 }
 
 #[derive(Debug)]
@@ -47,6 +47,7 @@ impl Config {
         let github_redirect_uri = env::var("GITHUB_REDIR_URL")?;
         let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
         let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
+        let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
 
         let env_file = EnvFile {
             pat,
@@ -56,6 +57,7 @@ impl Config {
             github_scope: "user".to_string(),
             port,
             environment: environment.clone(),
+            database_url,
         };
 
         // Print out the env_file

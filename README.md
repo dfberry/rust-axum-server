@@ -10,4 +10,4 @@ ACA doesn't need 3000 to be exposed in the Dockerfile but local development does
 ## Resources
 
 * https://github.com/hvalfangst/Axum-service-deployed-to-ACI-with-Workflow
-* https://github.com/alfredodeza/rust-distroless-azure
+* https://github.com/alfredodeza/rust-distroless-azuredi

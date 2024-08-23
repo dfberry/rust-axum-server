@@ -1,0 +1,1 @@
+cargo binstall diesel_cli
