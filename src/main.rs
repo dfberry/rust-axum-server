@@ -86,6 +86,7 @@ async fn main() {
         .route("/", get(handler))
         .route("/github/user", get(github_user_handler))
         .route("/github/repo", post(github_repo_handler))
+        .route("/github/query/issue", get(github_query_issue_handler))
         .route("/config", get(handler_config))
         .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
@@ -167,6 +168,31 @@ async fn github_repo_handler(Extension(state): Extension<Arc<AppState>>, Json(pa
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
                 .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+
+
+async fn github_query_issue_handler(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+    let token = state.config.read().unwrap().env_file.pat.clone();
+    let query = "tokei is:pr";
+
+    match GitHub::query(&token, &query).await {
+        Ok(query_result) => {
+            let json_query_result = json!(query_result);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_query_result.to_string()))
                 .unwrap()
         }
         Err(e) => {

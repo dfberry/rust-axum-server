@@ -216,8 +216,10 @@ checksum = "a21f936df1771bf62b77f047b726c4625ff2e8aa607c01ec06e5a05bd8463401"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
  "serde",
+ "wasm-bindgen",
  "windows-targets",
 ]
 
@@ -272,15 +274,19 @@ dependencies = [
  "anyhow",
  "axum",
  "axum-extra",
+ "chrono",
  "dotenv",
  "http",
+ "http-serde-ext",
  "octocrab",
  "serde",
+ "serde_derive",
  "serde_json",
  "tokio",
  "toml",
  "tower 0.5.0",
  "tower-http",
+ "url",
  "urlencoding",
  "uuid",
 ]
@@ -520,6 +526,16 @@ dependencies = [
  "http",
  "http-body",
  "pin-project-lite",
+]
+
+[[package]]
+name = "http-serde-ext"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "665c24b8e7e21688dc74edb228f07c1815bbc7ff3b48a3ee72fa20937fbde095"
+dependencies = [
+ "http",
+ "serde",
 ]
 
 [[package]]
