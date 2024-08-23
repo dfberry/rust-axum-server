@@ -1,0 +1,8 @@
+POST http://localhost:3000/github/query/issue HTTP/1.1
+content-type: application/json
+
+{
+    "query": "dfberry is:pr",
+    "token": "asdf"
+
+}

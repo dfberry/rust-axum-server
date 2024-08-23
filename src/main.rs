@@ -86,7 +86,7 @@ async fn main() {
         .route("/", get(handler))
         .route("/github/user", get(github_user_handler))
         .route("/github/repo", post(github_repo_handler))
-        .route("/github/query/issue", get(github_query_issue_handler))
+        .route("/github/query/issue", post(github_query_issue_handler))
         .route("/config", get(handler_config))
         .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
@@ -179,11 +179,14 @@ async fn github_repo_handler(Extension(state): Extension<Arc<AppState>>, Json(pa
         }
     }
 }
+#[derive(Deserialize)]
+struct QueryRequestBody {
+    query: String,
+}
 
-
-async fn github_query_issue_handler(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+async fn github_query_issue_handler(Extension(state): Extension<Arc<AppState>>,  Json(payload): Json<QueryRequestBody>) -> impl IntoResponse {
     let token = state.config.read().unwrap().env_file.pat.clone();
-    let query = "tokei is:pr";
+    let query = payload.query; // "tokei is:pr";
 
     match GitHub::query(&token, &query).await {
         Ok(query_result) => {
