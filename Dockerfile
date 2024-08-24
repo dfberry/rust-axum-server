@@ -1,23 +1,14 @@
-#--------------------------------------------
-# Use the official Rust image as the base image
-FROM mcr.microsoft.com/devcontainers/rust:bookworm as builder
+FROM rust
 
-RUN apt-get update 
+RUN apt update
+RUN apt install -y libpq-dev
 
-# Set the working directory inside the container
+RUN cargo install diesel_cli --no-default-features --features postgres
+
 WORKDIR /app
 
-# Copy the Cargo.toml and Cargo.lock files to the container
-COPY Cargo.toml Cargo.lock ./
+COPY . ./app
 
-# Copy the source code to the container
-COPY src ./src
-
-# Build the Rust project
 RUN cargo build --release
 
-# Expose port 3000
-EXPOSE 3000
-
-# Set the entrypoint to the built binary
-ENTRYPOINT ["/app"]
+CMD ["/app/target/release/dfberry-rust-axum-server-source-board"]
