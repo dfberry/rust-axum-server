@@ -45,9 +45,13 @@ mod database;
 use database::{
     User, 
     NewUser,
+    Watch,
+    NewWatch,
     establish_connection,
     list_users,
-    create_user
+    create_user,
+    list_watches,
+    create_watch
 };
 
 
@@ -100,6 +104,8 @@ async fn main() {
         .route("/github/query/issue", post(github_query_issue_handler))
         .route("/user", post(db_user_new_handler))
         .route("/users", get(db_users_all_handler))
+        .route("/user/:username/watch", post(db_watch_new_handler))
+        .route("/user/:username/watches", get(db_watches_all_handler))
         .route("/config", get(handler_config))
         .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
@@ -250,6 +256,48 @@ async fn db_users_all_handler(Extension(state): Extension<Arc<AppState>>) -> imp
         .header(http::header::CONTENT_TYPE, "application/json")
         .status(StatusCode::OK)
         .body(Body::from(json_users.to_string()))
+        .unwrap()
+}
+#[derive(Deserialize)]
+struct NewWatchRequestBody {
+    org_repo_name: String,
+    watch_type: String,
+}
+
+async fn db_watch_new_handler(
+    Path(github_user_id): Path<String>,
+    Extension(state): Extension<Arc<AppState>>, 
+    Json(payload): Json<NewWatchRequestBody>
+) -> impl IntoResponse {
+    let mut connection = database::establish_connection();
+    let org_repo_name = payload.org_repo_name.clone();
+    let watch_type = payload.watch_type.clone();
+
+    let watch = create_watch(&mut connection, &github_user_id, &org_repo_name, &watch_type).await;
+
+    let json_watch = json!(watch);
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_watch.to_string()))
+        .unwrap()
+}
+
+async fn db_watches_all_handler(
+    Path(github_user_id): Path<String>,
+    Extension(state): Extension<Arc<AppState>>
+) -> impl IntoResponse {
+    let mut connection = database::establish_connection();
+
+    let watches = list_watches(&mut connection).await;
+
+    let json_watches = json!(watches);
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_watches.to_string()))
         .unwrap()
 }
 async fn handler_config(

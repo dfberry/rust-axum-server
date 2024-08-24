@@ -1,0 +1,2 @@
+GET http://localhost:3000/user/6416928e-dcff-410d-ac67-b15066bcbe6e/watches HTTP/1.1
+content-type: application/json
