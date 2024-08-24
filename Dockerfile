@@ -7,7 +7,7 @@ RUN cargo install diesel_cli --no-default-features --features postgres
 
 WORKDIR /app
 
-COPY . ./app
+COPY . .
 
 RUN cargo build --release
 
