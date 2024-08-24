@@ -3,7 +3,7 @@
 FROM rust:latest as builder
 
 # Install libpq-dev for PostgreSQL client library
-RUN apt-get update && apt-get install -y libpq-dev
+RUN apt-get update && apt-get install -y libpq-dev ibkrb5-3
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -23,6 +23,10 @@ FROM gcr.io/distroless/cc AS runtime
 
 # Install libpq5 for PostgreSQL client library
 COPY --from=builder /usr/lib/x86_64-linux-gnu/libpq.so.5 /usr/lib/x86_64-linux-gnu/libpq.so.5
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libkrb5.so.3 /usr/lib/x86_64-linux-gnu/libkrb5.so.3
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libk5crypto.so.3 /usr/lib/x86_64-linux-gnu/libk5crypto.so.3
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libcom_err.so.2 /usr/lib/x86_64-linux-gnu/libcom_err.so.2
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libkrb5support.so.0 /usr/lib/x86_64-linux-gnu/libkrb5support.so.0
 
 # Set the working directory inside the container
 WORKDIR /app
