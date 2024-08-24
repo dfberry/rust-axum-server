@@ -5,43 +5,32 @@
 //! ```
 
 use axum::{
-    body::Body,
-    extract::{Extension, Json, Path, Query},
-    http::{HeaderMap, StatusCode},
-    response::{Html, IntoResponse, Response},
+    extract::{Extension},
     routing::{get, post},
     Router,
 };
-use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
-    TypedHeader,
-};
-use octocrab::models;
-use serde::Deserialize;
-use serde_json::json;
+
 use std::env;
 use std::sync::{Arc, RwLock};
-use tokio::fs;
-use toml;
-use urlencoding::encode;
-
+//--------------------------------------------------
+// Add the following imports for the new modules
+mod state;
+mod schema;
+mod database;
+mod github;
 mod routes;
+
 use routes::github::{
     github_get_user_handler, 
     github_post_query_issue_handler, 
     github_post_repo_handler,
 };
 use routes::root::root_get_handler;
-use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler, handler_config};
-
-mod config;
-use config::config::{Config, EnvFile, Package};
-use config::state::AppState;
-
-mod schema;
-mod database;
-mod github;
-
+use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
+use routes::admin::handler_get_config;
+use state::{AppState, Config};
+//--------------------------------------------------
+// main
 #[tokio::main]
 async fn main() {
     // Get the port from the environment variable
@@ -84,7 +73,7 @@ async fn main() {
         .route("/users", get(db_users_all_handler))
         .route("/user/:username/watch", post(db_watch_new_handler))
         .route("/user/:username/watches", get(db_watches_all_handler))
-        .route("/config", get(handler_config))
+        .route("/config", get(handler_get_config))
         .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
 
     // run it

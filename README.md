@@ -7,6 +7,14 @@
 
 ACA doesn't need 3000 to be exposed in the Dockerfile but local development does. Keep it because it works in both environments.
 
+## Lint
+
+* [Clippy](https://github.com/rust-lang/rust-clippy)
+
+```shell
+cargo clippy
+```
+
 ## Diesel ORM steps
 
 Steps found in [getting started](https://diesel.rs/guides/getting-started.html).

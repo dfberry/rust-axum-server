@@ -1,5 +1,11 @@
+use std::sync::{Arc, RwLock};
+
+#[derive(Clone)]
+pub struct AppState {
+    pub config: Arc<RwLock<Config>>,
+}
+
 use std::env;
-use std::fs;
 use toml;
 use serde::Deserialize;
 use dotenv::dotenv;
@@ -23,6 +29,7 @@ pub struct EnvFile {
     pub environment: String,
     pub database_url: String,
 }
+
 
 #[derive(Debug)]
 pub struct Config {

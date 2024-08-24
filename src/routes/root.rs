@@ -14,7 +14,7 @@ use axum::{
     extract::{Path, Query, Json, Extension},
 };
 use std::sync::{Arc, RwLock};
-use crate::config::state::AppState;
+use crate::state::AppState;
 use urlencoding::encode;
 pub async fn root_get_handler(Extension(state): Extension<Arc<AppState>>) -> Html<String> {
     let client_id = "Ov23liq4S3T2Ht4KUKBR";

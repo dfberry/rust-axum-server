@@ -1,32 +1,18 @@
 use axum::{
     response::{
-        Html,
         IntoResponse, 
         Response
     }, 
-    routing::{get, post}, 
-    Router, 
-    http::{
-        StatusCode,
-        HeaderMap
-    },
+    http::StatusCode,
     body::Body,
-    extract::{Path, Query, Json, Extension},
+    extract::{Query, Json, Extension},
 };
-use std::sync::{Arc, RwLock};
-use crate::config::state::AppState;
-use urlencoding::encode;
+use std::sync::Arc;
+use crate::state::AppState;
 
-use axum_extra::{
-    headers::{authorization::Bearer, Authorization},
-    TypedHeader,
-};
-use octocrab::models;
+
 use serde::Deserialize;
 use serde_json::json;
-use std::env;
-use tokio::fs;
-use toml;
 
 use crate::github::*;
 

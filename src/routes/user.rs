@@ -1,32 +1,22 @@
 use axum::{
     response::{
-        Html,
         IntoResponse, 
         Response
     }, 
-    routing::{get, post}, 
-    Router, 
-    http::{
-        StatusCode,
-        HeaderMap
-    },
+    http::StatusCode,
     body::Body,
-    extract::{Path, Query, Json, Extension},
+    extract::{Path, Json, Extension},
 };
-use std::sync::{Arc, RwLock};
-use crate::config::state::AppState;
-use urlencoding::encode;
-use std::env;
+use std::sync::Arc;
+use crate::state::AppState;
 
 use crate::database::database::establish_connection;
 use crate::database::user::{
-    create_user, list_users, NewUser, User
+    create_user, list_users
 };
 use crate::database::watch::{
     create_watch,
-    list_watches,
-    NewWatch,
-    Watch,
+    list_watches
 };
 
 use serde::Deserialize;
@@ -113,36 +103,4 @@ pub async fn db_watches_all_handler(
         .status(StatusCode::OK)
         .body(Body::from(json_watches.to_string()))
         .unwrap()
-}
-pub async fn handler_config(Extension(state): Extension<Arc<AppState>>) -> Html<String> {
-    // Collect environment variables
-    let env_vars: String = env::vars()
-        .map(|(key, value)| format!("<li>{}: {}</li>", key, value))
-        .collect::<Vec<String>>()
-        .join("");
-
-    // Collect app state
-    let app_state = state.config.read().unwrap();
-    let app_state_html = format!(
-        "<h2>App State:</h2>
-        <ul>
-            <li>Version: {}</li>
-            <li>GitHub Client ID: {}</li>
-            <li>GitHub Client Redir: {}</li>
-        </ul>",
-        app_state.package.version,
-        app_state.env_file.github_client_id,
-        app_state.env_file.github_redirect_uri
-    );
-
-    // Combine all information into HTML content
-    let html_content = format!(
-        "{app_state_html}
-        <h2>Environment Variables:</h2>
-        <ul>{env_vars}</ul>",
-        app_state_html = app_state_html,
-        env_vars = env_vars
-    );
-
-    Html(html_content)
 }

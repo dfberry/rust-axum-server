@@ -1,13 +1,7 @@
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
-use diesel::sql_types::{Text, Timestamptz, Varchar};
-use dotenv::dotenv;
-use std::env;
 use crate::schema::users;
-use crate::schema::watches;
 use serde::{Serialize, Deserialize};
-use chrono::NaiveDateTime;
-use chrono::{DateTime, Utc};
 
 #[derive(Debug, Serialize, Deserialize)]
 #[derive(Queryable, Selectable)]
