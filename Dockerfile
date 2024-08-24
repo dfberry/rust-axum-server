@@ -2,6 +2,9 @@
 # Use the official Rust image as the base image
 FROM rust:latest as builder
 
+# Install libpq-dev for PostgreSQL client library
+RUN apt-get update && apt-get install -y libpq-dev
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -17,6 +20,9 @@ RUN cargo build --release
 #--------------------------------------------
 # Use a minimal base image for the runtime
 FROM gcr.io/distroless/cc AS runtime
+
+# Install libpq5 for PostgreSQL client library
+COPY --from=builder /usr/lib/x86_64-linux-gnu/libpq.so.5 /usr/lib/x86_64-linux-gnu/libpq.so.5
 
 # Set the working directory inside the container
 WORKDIR /app
