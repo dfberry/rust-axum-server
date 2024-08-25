@@ -52,7 +52,7 @@ impl Config {
         let github_client_id = env::var("GITHUB_CLIENT_ID")?;
         let github_password = env::var("GITHUB_PASSWORD")?;
         let github_redirect_uri = env::var("GITHUB_REDIR_URL")?;
-        let port = env::var("PORT").unwrap_or_else(|_| "3000".to_string());
+        let port = env::var("PORT").unwrap_or_else(|_| "4000".to_string());
         let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
         let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
 

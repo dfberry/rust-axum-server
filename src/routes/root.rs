@@ -16,22 +16,21 @@ use axum::{
 use std::sync::{Arc, RwLock};
 use crate::state::AppState;
 use urlencoding::encode;
+
+
+/*
+
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+
+*/
+
+
 pub async fn root_get_handler(Extension(state): Extension<Arc<AppState>>) -> Html<String> {
-    let client_id = "Ov23liq4S3T2Ht4KUKBR";
-    let redirect_uri = "http://localhost:3000/callback";
-    let scope = "user";
-    let encoded_redirect_uri = encode(&redirect_uri);
-    let encoded_scope = scope;
-
-    let login_url = format!(
-        "https://github.com/login/oauth/authorize?client_id={}&redirect_uri={}&scope={}",
-        client_id, encoded_redirect_uri, encoded_scope
-    );
-
-
-
         let html_content = format!(
-            "<h1><a href=\"{login_url}\">Login</a></h1>"
+            "<h1>Source board</h1>"
         );
 
     Html(html_content)

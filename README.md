@@ -3,9 +3,9 @@
 * `cargo build` or `cargo build --release`
 * `cargo run`
 
-## Port 3000
+## Port 4000
 
-ACA doesn't need 3000 to be exposed in the Dockerfile but local development does. Keep it because it works in both environments.
+ACA doesn't need 4000 to be exposed in the Dockerfile but local development does. Keep it because it works in both environments.
 
 ## Lint
 

@@ -24,7 +24,7 @@ toml = "0.8.19"
 url = "2.5.2"
 chrono = "0.4.38"
 diesel = { version = "2.2.3", features = ["postgres", "chrono"] }
-postgres = "0.19.8"
+pq-sys = "0.6.1"
 
 [[bin]]
 name = "dfberry-rust-axum-server-source-board"

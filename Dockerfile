@@ -3,7 +3,8 @@ FROM rust
 RUN apt update
 RUN apt install -y libpq-dev
 
-RUN cargo install diesel_cli --no-default-features --features postgres
+#https://www.reddit.com/r/rust/comments/1f0ibyq/rust_diesel_postgres_container/
+#RUN cargo install diesel_cli --no-default-features --features postgres
 
 WORKDIR /app
 
