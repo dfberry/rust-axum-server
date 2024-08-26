@@ -9,9 +9,9 @@ use axum::{
 };
 use std::sync::Arc;
 use crate::state::AppState;
-
-
+use reqwest::Client;
 use serde::Deserialize;
+use tokio::task;
 use serde_json::json;
 
 use crate::github::*;
@@ -112,3 +112,26 @@ pub async fn github_get_user_handler(
         }
     }
 }
+#[derive(Deserialize)]
+pub struct UserQueryCustomParams {
+    username: String,
+    repos: Vec<String>,
+}
+pub async fn github_post_query_custom_handler(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<UserQueryCustomParams>,
+) -> impl IntoResponse {
+
+    let token = state.config.read().unwrap().env_file.pat.clone();
+    let repos = payload.repos;
+
+    let stats = fetch_all_repos_stats(&token, repos).await;
+
+    for stat in stats {
+        match stat {
+            Ok(repo_stats) => println!("{:?}", repo_stats),
+            Err(e) => eprintln!("Error fetching repo stats: {}", e),
+        }
+    }
+   
+}   

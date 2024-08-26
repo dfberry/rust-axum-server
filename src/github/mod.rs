@@ -4,10 +4,12 @@ use octocrab::models::UserProfile as User;
 use octocrab::models::issues::Issue;
 use octocrab::Page;
 use octocrab::Octocrab;
-use http::*;
+use octocrab::Error as OctocrabError;
+use http::Uri;
 use serde::{Serialize, Deserialize};
 use std::option::Option; 
-
+use std::fmt;
+use futures::future::join_all;
 #[derive(Serialize, Deserialize)]
 pub struct IssueQueryDef {
     #[serde(flatten)]
@@ -83,3 +85,71 @@ impl GitHub {
         Ok(page_def)
     }
 }
+
+
+#[derive(Debug)]
+pub struct RepoStats {
+    stars: u32,
+    forks: u32,
+    open_issues: u32,
+    open_prs: u64,
+}
+
+async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> Result<RepoStats, OctocrabError> {
+    // split the repo string into owner and name
+    let parts: Vec<&str> = repo.split('/').collect();
+    let (owner, name) = match parts.as_slice() {
+        [owner, name] => (owner.to_string(), name.to_string()),
+        _ => {
+            // Handle the error case where the repo string does not have the expected format
+            panic!("Invalid repository format. Expected 'owner/repo'.");
+        }
+    };
+
+    let repo_info: Repository = match octocrab.repos(&owner, &name).get().await {
+        Ok(info) => info,
+        Err(e) => {
+            println!("Failed to fetch repository info for {}/{}: {}", owner, name, e);
+            return Err(e);
+        }
+    };
+
+    let stars = repo_info.stargazers_count.unwrap_or(0) as u32;
+    let forks = repo_info.forks_count.unwrap_or(0) as u32;
+    let open_issues = repo_info.open_issues_count.unwrap_or(0) as u32;
+    let open_prs = octocrab
+        .pulls(&owner, &name)
+        .list()
+        .state(octocrab::params::State::Open)
+        .send()
+        .await?
+        .total_count
+        .unwrap_or(0);
+
+    Ok(RepoStats {
+        stars,
+        forks,
+        open_issues,
+        open_prs,
+    })
+}
+
+pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<Result<RepoStats, OctocrabError>> {
+    let octocrab = Octocrab::builder()
+        .personal_token(token.to_string())
+        .build()
+        .unwrap();
+
+    let tasks: Vec<_> = repos
+        .iter()
+        .map(|repo| {
+            let octocrab = octocrab.clone();
+            let repo = repo.clone();
+            async move { fetch_repo_stats(&octocrab, &repo).await }
+        })
+        .collect();
+
+    let results = join_all(tasks).await;
+    results
+}
+
