@@ -13,7 +13,7 @@ use reqwest::Client;
 use serde::Deserialize;
 use tokio::task;
 use serde_json::json;
-
+use octocrab::Error as OctocrabError;
 use crate::github::*;
 
 #[derive(Deserialize)]
@@ -112,26 +112,26 @@ pub async fn github_get_user_handler(
         }
     }
 }
+
+
 #[derive(Deserialize)]
-pub struct UserQueryCustomParams {
-    username: String,
+pub struct RepoStatsParams {
     repos: Vec<String>,
 }
-pub async fn github_post_query_custom_handler(
+pub async fn github_post_repo_stats_handler(
     Extension(state): Extension<Arc<AppState>>,
-    Json(payload): Json<UserQueryCustomParams>,
+    Json(payload): Json<RepoStatsParams>,
 ) -> impl IntoResponse {
 
     let token = state.config.read().unwrap().env_file.pat.clone();
     let repos = payload.repos;
 
     let stats = fetch_all_repos_stats(&token, repos).await;
+    let json_stats = json!(stats);
 
-    for stat in stats {
-        match stat {
-            Ok(repo_stats) => println!("{:?}", repo_stats),
-            Err(e) => eprintln!("Error fetching repo stats: {}", e),
-        }
-    }
-   
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_stats.to_string()))
+        .unwrap()
 }   

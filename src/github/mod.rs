@@ -86,16 +86,24 @@ impl GitHub {
     }
 }
 
-
+#[derive(Serialize, Deserialize)]
 #[derive(Debug)]
 pub struct RepoStats {
-    stars: u32,
-    forks: u32,
-    open_issues: u32,
-    open_prs: u64,
+    pub stars: u32,
+    pub forks: u32,
+    pub open_issues: u32,
+    pub open_prs: u64,
 }
 
-async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> Result<RepoStats, OctocrabError> {
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
+pub struct RepoStatsResult {
+    pub repo_name: String,
+    pub stats: RepoStats,
+    pub errors: Vec<String>,
+}
+
+async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
     // split the repo string into owner and name
     let parts: Vec<&str> = repo.split('/').collect();
     let (owner, name) = match parts.as_slice() {
@@ -106,35 +114,46 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> Result<RepoStats, 
         }
     };
 
-    let repo_info: Repository = match octocrab.repos(&owner, &name).get().await {
-        Ok(info) => info,
-        Err(e) => {
-            println!("Failed to fetch repository info for {}/{}: {}", owner, name, e);
-            return Err(e);
-        }
+    let mut repo_stats_result = RepoStatsResult {
+        repo_name: repo.to_string(),
+        stats: RepoStats {
+            stars: 0,
+            forks: 0,
+            open_issues: 0,
+            open_prs: 0,
+        },
+        errors: Vec::new(),
     };
 
-    let stars = repo_info.stargazers_count.unwrap_or(0) as u32;
-    let forks = repo_info.forks_count.unwrap_or(0) as u32;
-    let open_issues = repo_info.open_issues_count.unwrap_or(0) as u32;
-    let open_prs = octocrab
-        .pulls(&owner, &name)
-        .list()
-        .state(octocrab::params::State::Open)
-        .send()
-        .await?
-        .total_count
-        .unwrap_or(0);
+    match octocrab.repos(&owner, &name).get().await{
+        Ok(info) => {
+            repo_stats_result.stats.stars = info.stargazers_count.unwrap_or(0) as u32;
+            repo_stats_result.stats.forks = info.forks_count.unwrap_or(0) as u32;
+            repo_stats_result.stats.open_issues = info.open_issues_count.unwrap_or(0) as u32;
+        },
+        Err(e) => {
+            repo_stats_result.errors.push(format!("Failed to fetch repository info for {}/{}: {}", owner, name, e));
+        }
+    };
+    
+    match octocrab
+                        .pulls(&owner, &name)
+                        .list()
+                        .state(octocrab::params::State::Open)
+                        .send()
+                        .await{
+        Ok(info) => {
+                            repo_stats_result.stats.open_prs = 0;
+        },
+        Err(e) => {
+            repo_stats_result.errors.push(format!("Failed to fetch pr count for {}/{}: {}", owner, name, e));
+        }
+    };
+    repo_stats_result
 
-    Ok(RepoStats {
-        stars,
-        forks,
-        open_issues,
-        open_prs,
-    })
 }
 
-pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<Result<RepoStats, OctocrabError>> {
+pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoStatsResult> {
     let octocrab = Octocrab::builder()
         .personal_token(token.to_string())
         .build()

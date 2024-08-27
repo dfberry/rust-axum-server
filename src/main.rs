@@ -24,7 +24,7 @@ use routes::github::{
     github_get_user_handler, 
     github_post_query_issue_handler, 
     github_post_repo_handler,
-    github_post_query_custom_handler
+    github_post_repo_stats_handler
 };
 use routes::root::root_get_handler;
 use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
@@ -70,7 +70,7 @@ async fn main() {
         .route("/github/user", get(github_get_user_handler))
         .route("/github/repo", post(github_post_repo_handler))
         .route("/github/query/issue", post(github_post_query_issue_handler))
-        .route("/github/query/custom", post(github_post_query_custom_handler))
+        .route("/github/repos/stats", post(github_post_repo_stats_handler))
         .route("/user", post(db_user_new_handler))
         .route("/users", get(db_users_all_handler))
         .route("/user/:username/watch", post(db_watch_new_handler))
