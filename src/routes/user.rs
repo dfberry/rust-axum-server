@@ -27,7 +27,7 @@ pub struct NewUserRequestBody {
     github_user: String,
 }
 pub async fn db_user_new_handler(
-    Extension(state): Extension<Arc<AppState>>,
+    Extension(_): Extension<Arc<AppState>>,
     Json(payload): Json<NewUserRequestBody>,
 ) -> impl IntoResponse {
     let mut connection = establish_connection();
@@ -43,7 +43,7 @@ pub async fn db_user_new_handler(
         .body(Body::from(json_user.to_string()))
         .unwrap()
 }
-pub async fn db_users_all_handler(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+pub async fn db_users_all_handler(Extension(_): Extension<Arc<AppState>>) -> impl IntoResponse {
     let mut connection = establish_connection();
 
     let users = list_users(&mut connection).await;
@@ -64,7 +64,7 @@ pub struct NewWatchRequestBody {
 
 pub async fn db_watch_new_handler(
     Path(github_user_id): Path<String>,
-    Extension(state): Extension<Arc<AppState>>,
+    Extension(_): Extension<Arc<AppState>>,
     Json(payload): Json<NewWatchRequestBody>,
 ) -> impl IntoResponse {
     let mut connection = establish_connection();
@@ -89,8 +89,8 @@ pub async fn db_watch_new_handler(
 }
 
 pub async fn db_watches_all_handler(
-    Path(github_user_id): Path<String>,
-    Extension(state): Extension<Arc<AppState>>,
+    Path(_): Path<String>,
+    Extension(_): Extension<Arc<AppState>>,
 ) -> impl IntoResponse {
     let mut connection = establish_connection();
 

@@ -1,22 +1,9 @@
 use axum::{
-    response::{
-        Html,
-        IntoResponse, 
-        Response
-    }, 
-    routing::{get, post}, 
-    Router, 
-    http::{
-        StatusCode,
-        HeaderMap
-    },
-    body::Body,
-    extract::{Path, Query, Json, Extension},
+    response::Html,
+    extract::Extension,
 };
-use std::sync::{Arc, RwLock};
+use std::sync::Arc;
 use crate::state::AppState;
-use urlencoding::encode;
-
 
 /*
 
@@ -28,7 +15,7 @@ use urlencoding::encode;
 */
 
 
-pub async fn root_get_handler(Extension(state): Extension<Arc<AppState>>) -> Html<String> {
+pub async fn root_get_handler(Extension(_): Extension<Arc<AppState>>) -> Html<String> {
         let html_content = format!(
             "<h1>Source board</h1>"
         );

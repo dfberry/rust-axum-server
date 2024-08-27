@@ -9,11 +9,8 @@ use axum::{
 };
 use std::sync::Arc;
 use crate::state::AppState;
-use reqwest::Client;
 use serde::Deserialize;
-use tokio::task;
 use serde_json::json;
-use octocrab::Error as OctocrabError;
 use crate::github::*;
 
 #[derive(Deserialize)]
@@ -23,7 +20,7 @@ pub struct RepoRequestBody {
     repo_name: String,
 }
 pub async fn github_post_repo_handler(
-    Extension(state): Extension<Arc<AppState>>,
+    Extension(_): Extension<Arc<AppState>>,
     Json(payload): Json<RepoRequestBody>,
 ) -> impl IntoResponse {
     let token = payload.token;

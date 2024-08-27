@@ -4,11 +4,9 @@ use octocrab::models::UserProfile as User;
 use octocrab::models::issues::Issue;
 use octocrab::Page;
 use octocrab::Octocrab;
-use octocrab::Error as OctocrabError;
 use http::Uri;
 use serde::{Serialize, Deserialize};
 use std::option::Option; 
-use std::fmt;
 use futures::future::join_all;
 #[derive(Serialize, Deserialize)]
 pub struct IssueQueryDef {
@@ -92,7 +90,7 @@ pub struct RepoStats {
     pub stars: u32,
     pub forks: u32,
     pub open_issues: u32,
-    pub open_prs: u64,
+    pub watchers: u64,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -120,7 +118,7 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             stars: 0,
             forks: 0,
             open_issues: 0,
-            open_prs: 0,
+            watchers: 0,
         },
         errors: Vec::new(),
     };
@@ -130,25 +128,13 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             repo_stats_result.stats.stars = info.stargazers_count.unwrap_or(0) as u32;
             repo_stats_result.stats.forks = info.forks_count.unwrap_or(0) as u32;
             repo_stats_result.stats.open_issues = info.open_issues_count.unwrap_or(0) as u32;
+            repo_stats_result.stats.watchers = info.watchers_count.unwrap_or(0) as u64;
         },
         Err(e) => {
             repo_stats_result.errors.push(format!("Failed to fetch repository info for {}/{}: {}", owner, name, e));
         }
     };
     
-    match octocrab
-                        .pulls(&owner, &name)
-                        .list()
-                        .state(octocrab::params::State::Open)
-                        .send()
-                        .await{
-        Ok(info) => {
-                            repo_stats_result.stats.open_prs = 0;
-        },
-        Err(e) => {
-            repo_stats_result.errors.push(format!("Failed to fetch pr count for {}/{}: {}", owner, name, e));
-        }
-    };
     repo_stats_result
 
 }
