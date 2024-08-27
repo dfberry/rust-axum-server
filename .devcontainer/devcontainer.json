@@ -12,7 +12,8 @@
 		"vscode": {
 			"extensions": [
 				"rust-lang.rust-analyzer",
-				"1YiB.rust-bundle"
+				"1YiB.rust-bundle",
+				"humao.rest-client"
 			]
 		}
 	}
