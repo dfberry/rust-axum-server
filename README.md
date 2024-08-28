@@ -1,5 +1,9 @@
 # Rust Axum server
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/{owner}/{repo}/badge)](https://scorecard.dev/viewer/?uri=github.com/{owner}/{repo})
+
+## To run
+
 * `cargo build` or `cargo build --release`
 * `cargo run`
 
