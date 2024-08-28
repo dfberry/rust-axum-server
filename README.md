@@ -1,6 +1,6 @@
 # Rust Axum server
 
-[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/{owner}/{repo}/badge)](https://scorecard.dev/viewer/?uri=github.com/{owner}/{repo})
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/dfberry/rust-axum-server/badge)](https://scorecard.dev/viewer/?uri=github.com/dfberry/rust-axum-server)
 
 ## To run
 
