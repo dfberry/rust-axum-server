@@ -1,13 +1,15 @@
-use anyhow::Result;
 use octocrab::models::Repository;
 use octocrab::models::UserProfile as User;
 use octocrab::models::issues::Issue;
+use octocrab::models::RepositoryMetrics;
 use octocrab::Page;
 use octocrab::Octocrab;
 use http::Uri;
 use serde::{Serialize, Deserialize};
 use std::option::Option; 
+use std::collections::HashMap;
 use futures::future::join_all;
+use anyhow::{Result, Context};
 #[derive(Serialize, Deserialize)]
 pub struct IssueQueryDef {
     #[serde(flatten)]
@@ -98,6 +100,7 @@ pub struct RepoStats {
 pub struct RepoStatsResult {
     pub repo_name: String,
     pub stats: RepoStats,
+    pub metrics: Option<RepositoryMetrics>,
     pub errors: Vec<String>,
 }
 
@@ -120,8 +123,11 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             open_issues: 0,
             watchers: 0,
         },
+        metrics: None,
         errors: Vec::new(),
     };
+
+    let metrics = octocrab.repos(&owner, &name).get_community_profile_metrics().await;
 
     match octocrab.repos(&owner, &name).get().await{
         Ok(info) => {
@@ -129,6 +135,7 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             repo_stats_result.stats.forks = info.forks_count.unwrap_or(0) as u32;
             repo_stats_result.stats.open_issues = info.open_issues_count.unwrap_or(0) as u32;
             repo_stats_result.stats.watchers = info.watchers_count.unwrap_or(0) as u64;
+            repo_stats_result.metrics = metrics.ok();
         },
         Err(e) => {
             repo_stats_result.errors.push(format!("Failed to fetch repository info for {}/{}: {}", owner, name, e));
@@ -138,6 +145,8 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
     repo_stats_result
 
 }
+
+
 
 pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoStatsResult> {
     let octocrab = Octocrab::builder()
@@ -158,3 +167,7 @@ pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoS
     results
 }
 
+pub async fn fetch_community_metrics(octocrab: &Octocrab, repo: &str) -> Result<RepositoryMetrics> {
+    let metrics = octocrab.repos("dfberry", repo).get_community_profile_metrics().await?;
+    Ok(metrics)
+}
