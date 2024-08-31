@@ -27,6 +27,21 @@ pub async fn github_post_repo_handler(
     let org_or_owner = payload.org_or_user;
     let repo_name = payload.repo_name;
 
+    // if the token is empty, return a 401 Unauthorized
+    if token.is_empty() {
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
     match GitHub::repo(&token, &org_or_owner, &repo_name).await {
         Ok(repo) => {
             let json_repo = json!(repo);
@@ -58,6 +73,13 @@ pub async fn github_post_query_issue_handler(
 ) -> impl IntoResponse {
     let token = state.config.read().unwrap().env_file.pat.clone();
     let query = payload.query; // "tokei is:pr";
+
+    if (query.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
 
     match GitHub::query(&token, &query).await {
         Ok(query_result) => {

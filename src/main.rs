@@ -8,6 +8,9 @@ use axum::{
     extract::{Extension},
     routing::{get, post},
     Router,
+    extract::Request,
+    response::{IntoResponse, Response},
+    middleware::{self, Next, map_response,},
 };
 
 use std::env;
@@ -19,6 +22,9 @@ mod schema;
 mod database;
 mod github;
 mod routes;
+mod utils;
+
+use state::get_cargo_version;
 
 use routes::github::{
     github_get_user_handler, 
@@ -76,10 +82,18 @@ async fn main() {
         .route("/user/:username/watch", post(db_watch_new_handler))
         .route("/user/:username/watches", get(db_watches_all_handler))
         .route("/config", get(handler_get_config))
-        .layer(Extension(shared_state.clone())); // Add the shared config to the application state;
+        .layer(Extension(shared_state.clone()))
+        .layer(map_response(set_header));// Add the shared config to the application state;
 
     // run it
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
+}
+async fn set_header<B>(mut response: Response<B>) -> Response<B> {
+
+    let version = get_cargo_version().await.unwrap();
+
+     response.headers_mut().insert("x-source-board-version", version.parse().unwrap());
+     response
 }

@@ -1,4 +1,8 @@
 use std::sync::{Arc, RwLock};
+use serde::Deserialize;
+use anyhow::{Result, Context};
+use tokio::fs::File;
+use tokio::io::AsyncReadExt;
 
 #[derive(Clone)]
 pub struct AppState {
@@ -7,9 +11,7 @@ pub struct AppState {
 
 use std::env;
 use toml;
-use serde::Deserialize;
 use dotenv::dotenv;
-use tokio::fs as async_fs;
 //use urlencoding::encode;
 
 #[derive(Deserialize, Debug)]
@@ -72,12 +74,8 @@ impl Config {
 
         // Toml file
         // Determine the file path based on the environment
-        let file_path = "./Cargo.toml";
-        let cargo_toml_content = async_fs::read_to_string(file_path)
-            .await
-            .map_err(|e| format!("Failed to read {}: {}", file_path, e))?;
         
-        let cargo_toml: CargoToml = toml::from_str(&cargo_toml_content)?;
+        let cargo_toml = read_and_parse_cargo_toml("./Cargo.toml").await?;
 
         let package = Package {
             name: cargo_toml.package.name,
@@ -92,4 +90,23 @@ impl Config {
             package,
         })
     }
+}
+async fn read_and_parse_cargo_toml(file_path: &str) -> Result<CargoToml> {
+    let mut file = File::open(file_path)
+        .await
+        .with_context(|| format!("Failed to open {}", file_path))?;
+    
+    let mut cargo_toml_content = String::new();
+    file.read_to_string(&mut cargo_toml_content)
+        .await
+        .with_context(|| format!("Failed to read {}", file_path))?;
+    
+    let cargo_toml: CargoToml = toml::from_str(&cargo_toml_content)
+        .with_context(|| format!("Failed to parse {}", file_path))?;
+    
+    Ok(cargo_toml)
+}
+pub async fn get_cargo_version() -> Result<String> {
+    let cargo_toml = read_and_parse_cargo_toml("./Cargo.toml").await?;
+    Ok(cargo_toml.package.version)
 }

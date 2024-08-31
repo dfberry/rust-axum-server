@@ -4,12 +4,17 @@ use octocrab::models::issues::Issue;
 use octocrab::models::RepositoryMetrics;
 use octocrab::Page;
 use octocrab::Octocrab;
+use octocrab::models::repos::RepoCommit;
 use http::Uri;
 use serde::{Serialize, Deserialize};
 use std::option::Option; 
 use std::collections::HashMap;
 use futures::future::join_all;
-use anyhow::{Result, Context};
+use anyhow::{Result, Context, anyhow};
+use chrono::DateTime;
+use chrono::Utc;
+use crate::utils::{option_datetime_to_string, parse_repo_string};
+
 #[derive(Serialize, Deserialize)]
 pub struct IssueQueryDef {
     #[serde(flatten)]
@@ -93,6 +98,7 @@ pub struct RepoStats {
     pub forks: u32,
     pub open_issues: u32,
     pub watchers: u64,
+    pub last_commit: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -105,15 +111,6 @@ pub struct RepoStatsResult {
 }
 
 async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
-    // split the repo string into owner and name
-    let parts: Vec<&str> = repo.split('/').collect();
-    let (owner, name) = match parts.as_slice() {
-        [owner, name] => (owner.to_string(), name.to_string()),
-        _ => {
-            // Handle the error case where the repo string does not have the expected format
-            panic!("Invalid repository format. Expected 'owner/repo'.");
-        }
-    };
 
     let mut repo_stats_result = RepoStatsResult {
         repo_name: repo.to_string(),
@@ -122,12 +119,15 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             forks: 0,
             open_issues: 0,
             watchers: 0,
+            last_commit: "".to_string(),
         },
         metrics: None,
         errors: Vec::new(),
     };
 
+    let (owner, name) = parse_repo_string(repo).unwrap();
     let metrics = octocrab.repos(&owner, &name).get_community_profile_metrics().await;
+    let last_commit = fetch_last_commit(octocrab, repo).await;
 
     match octocrab.repos(&owner, &name).get().await{
         Ok(info) => {
@@ -136,6 +136,7 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             repo_stats_result.stats.open_issues = info.open_issues_count.unwrap_or(0) as u32;
             repo_stats_result.stats.watchers = info.watchers_count.unwrap_or(0) as u64;
             repo_stats_result.metrics = metrics.ok();
+            repo_stats_result.stats.last_commit = last_commit.unwrap_or_else(|e| e.to_string());
         },
         Err(e) => {
             repo_stats_result.errors.push(format!("Failed to fetch repository info for {}/{}: {}", owner, name, e));
@@ -170,4 +171,36 @@ pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoS
 pub async fn fetch_community_metrics(octocrab: &Octocrab, repo: &str) -> Result<RepositoryMetrics> {
     let metrics = octocrab.repos("dfberry", repo).get_community_profile_metrics().await?;
     Ok(metrics)
+}
+
+fn get_commit_date(commit: &RepoCommit) -> String {
+    let author_date = commit
+    .commit
+    .author.as_ref().map(|a| a.date.clone()).unwrap();
+
+    option_datetime_to_string(author_date)
+}
+
+pub async fn fetch_last_commit(octocrab: &Octocrab, repo: &str) -> Result<String> {
+
+    let (owner, name) = parse_repo_string(repo)?;
+
+    let commits = octocrab
+        .repos(&owner, &name)
+        .list_commits()
+        .per_page(1)
+        .send()
+        .await?;
+
+    let first_commit = commits.items.into_iter().next();
+
+    // Handle the case where there are no commits
+    let commit = match first_commit {
+        Some(commit) => commit,
+        None => return Ok("No commits found".to_string()),
+    };
+
+    // Get date of last commit
+    let commit_date = get_commit_date(&commit);
+    Ok(commit_date)
 }

@@ -33,6 +33,13 @@ pub async fn db_user_new_handler(
     let mut connection = establish_connection();
     let github_user = payload.github_user.clone();
 
+    if (github_user.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
     let user = create_user(&mut connection, &github_user).await;
 
     let json_user = json!(user);
@@ -70,6 +77,14 @@ pub async fn db_watch_new_handler(
     let mut connection = establish_connection();
     let org_repo_name = payload.org_repo_name.clone();
     let watch_type = payload.watch_type.clone();
+
+
+    if (org_repo_name.is_empty() || watch_type.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
 
     let watch = create_watch(
         &mut connection,
