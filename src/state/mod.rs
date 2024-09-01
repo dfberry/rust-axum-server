@@ -11,7 +11,7 @@ pub struct AppState {
 
 use std::env;
 use toml;
-use dotenv::dotenv;
+use dotenvy::dotenv;
 //use urlencoding::encode;
 
 #[derive(Deserialize, Debug)]
@@ -47,7 +47,7 @@ impl Config {
 
     pub async fn get() -> Result<Self, Box<dyn std::error::Error>> {
 
-        dotenv().ok();
+        dotenvy::dotenv()?;
 
         // Environment variables
         let pat = env::var("PAT")?;
