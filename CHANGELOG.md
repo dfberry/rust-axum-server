@@ -1,5 +1,9 @@
 # Change log
 
+## 0.2.4
+
+* dotenv -> dotenvy
+
 ## 0.2.3
 
 * Last commit date in stats
