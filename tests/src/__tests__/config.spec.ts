@@ -9,6 +9,8 @@ describe('API Config', () => {
 
     const response = await superagent.get(`${BASE_URL}/config`);
 
+    expect(response.status).toBe(200);
+
       // // Verify headers contain x-source-board-version
       expect(response.headers).toHaveProperty('x-source-board-version');
   
