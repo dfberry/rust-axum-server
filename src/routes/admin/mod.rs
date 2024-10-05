@@ -8,6 +8,7 @@ use axum::{
 };
 use serde_json::json;
 use std::env;
+use chrono::Utc;
 
 pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
     // Collect environment variables
@@ -18,13 +19,17 @@ pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> i
     // Collect app state
     let app_state = state.config.read().unwrap();
 
+    // Get the current UTC date-time
+    let current_time = Utc::now().to_rfc3339();
+
     // Create JSON response
     let returned_json = json!({
         "env_vars": env_vars,
         "app_state": {
             "version": app_state.package.version,
             "github_redirect_uri": app_state.env_file.github_redirect_uri,
-        }
+        },
+        "timestamp": current_time
     });
 
     // Create a HeaderMap and insert the custom header

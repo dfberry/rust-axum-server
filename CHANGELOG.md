@@ -1,5 +1,11 @@
 # Change log
 
+## 0.3.0
+
+Both client and server in Azure Container Apps
+
+* /admin returns UTC timestamp in JSON
+
 ## 0.2.4
 
 * dotenv -> dotenvy
