@@ -16,7 +16,8 @@
 				"1YiB.rust-bundle",
 				"humao.rest-client",
 				"mhutchie.git-graph",
-				"eamodio.gitlens"
+				"eamodio.gitlens",
+				"GitHub.vscode-pull-request-github"
 			]
 		}
 	}
