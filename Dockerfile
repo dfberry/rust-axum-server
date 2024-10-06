@@ -7,6 +7,9 @@ RUN apt update && apt install -y libpq-dev
 
 WORKDIR /app
 
+RUN copy . .
+RUN ls -la
+
 RUN cargo build --release
 #---------------------------------------------
 FROM rust as server
