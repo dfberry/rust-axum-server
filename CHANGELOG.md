@@ -1,5 +1,9 @@
 # Change log
 
+## 0.3.1
+
+* Remove reading toml for now
+
 ## 0.3.0
 
 Both client and server in Azure Container Apps
