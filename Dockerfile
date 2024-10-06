@@ -7,7 +7,7 @@ RUN apt update && apt install -y libpq-dev
 
 WORKDIR /app
 
-RUN copy . .
+COPY . .
 RUN ls -la
 
 RUN cargo build --release
