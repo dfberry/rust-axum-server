@@ -5,7 +5,7 @@
 ## To run
 
 * `cargo build` or `cargo build --release`
-* `cargo run`
+* `bash start-dev-with-env.sh` or `bash start-container-with-env.sh`
 
 ## Port 4000
 
@@ -44,6 +44,13 @@ Steps found in [getting started](https://diesel.rs/guides/getting-started.html).
     ```
 
     This generates the `schema.rs` file. 
+
+## Build and run container locally
+
+1. Install Visual Studio Code docker extension.
+2. Right-click on Dockerfile, and select `Build Image`.
+3. Enter image name `source-board-server` at top of screen. Tag will be `latest`.
+4. Run with 'bash start-container-with-env.sh`.
 
 ## Resources
 

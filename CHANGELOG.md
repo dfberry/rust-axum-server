@@ -1,8 +1,12 @@
 # Change log
 
+## 0.3.4
+
+* New Repo properties
+
 ## 0.3.3
 
-* Fixing...
+* Remove dotenvy - required/failed on file not found
 
 ## 0.3.1
 
