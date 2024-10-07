@@ -12,7 +12,7 @@ use axum::{
     response::{IntoResponse, Response},
     middleware::{self, Next, map_response,},
 };
-
+//use hyper::header::HeaderValue;
 use std::env;
 use std::sync::{Arc, RwLock};
 //--------------------------------------------------
@@ -82,18 +82,22 @@ async fn main() {
         .route("/user/:username/watch", post(db_watch_new_handler))
         .route("/user/:username/watches", get(db_watches_all_handler))
         .route("/config", get(handler_get_config))
-        .layer(Extension(shared_state.clone()))
-        .layer(map_response(set_header));// Add the shared config to the application state;
+        .layer(Extension(shared_state.clone()));
+        //.layer(map_response(set_header));// Add the shared config to the application state;
 
     // run it
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
-async fn set_header<B>(mut response: Response<B>) -> Response<B> {
+// async fn set_header<B>(mut response: Response<B>, Extension(shared_state): Extension<Arc<AppState>>) -> Response<B> {
+//     let version = get_cargo_version().await.unwrap();
 
-    let version = get_cargo_version().await.unwrap();
+//     // Access the env_config values
+//     let env_config = shared_state.config.read().unwrap();
+//     let port = &env_config.env_file.port;
 
-     response.headers_mut().insert("x-source-board-version", version.parse().unwrap());
-     response
-}
+//     response.headers_mut().insert("x-source-board-version", HeaderValue::from_str(&version).unwrap());
+//     response.headers_mut().insert("x-source-board-port", HeaderValue::from_str(port).unwrap());
+//     response
+// }

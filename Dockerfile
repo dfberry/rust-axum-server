@@ -19,9 +19,9 @@ RUN apt update && apt install -y libpq-dev
 WORKDIR /app
 
 # Copy the built application from the first stage
-COPY --from=builder /app/target/release/dfberry-rust-axum-server-source-board /app/dfberry-rust-axum-server-source-board
+COPY --from=builder /app/target/release/source-board-server /app/source-board-server
 COPY --from=builder /app/Cargo.toml /app/Cargo.toml
 
 RUN ls -la
 
-CMD ["/app//dfberry-rust-axum-server-source-board"]
+CMD ["/app/source-board-server"]
