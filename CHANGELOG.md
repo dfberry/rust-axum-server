@@ -1,5 +1,9 @@
 # Change log
 
+## 0.3.3
+
+* Fixing...
+
 ## 0.3.1
 
 * Remove reading toml for now
