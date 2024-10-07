@@ -2,6 +2,7 @@ use octocrab::models::Repository;
 use octocrab::models::UserProfile as User;
 use octocrab::models::issues::Issue;
 use octocrab::models::RepositoryMetrics;
+use octocrab::models::License;
 use octocrab::Page;
 use octocrab::Octocrab;
 use octocrab::models::repos::RepoCommit;
@@ -99,6 +100,12 @@ pub struct RepoStats {
     pub open_issues: u32,
     pub watchers: u64,
     pub last_commit: String,
+    pub archived: Option<bool>,
+    pub size: Option<u32>,
+    pub visibility: Option<String>,
+    pub created_at: Option<DateTime<Utc>>,
+    pub license: Option<License>,
+    pub allow_auto_merge: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -120,6 +127,12 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             open_issues: 0,
             watchers: 0,
             last_commit: "".to_string(),
+            archived: None,
+            size: None,
+            visibility: None,
+            created_at: None,
+            license: None,
+            allow_auto_merge: None,
         },
         metrics: None,
         errors: Vec::new(),
@@ -137,6 +150,12 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
             repo_stats_result.stats.watchers = info.watchers_count.unwrap_or(0) as u64;
             repo_stats_result.metrics = metrics.ok();
             repo_stats_result.stats.last_commit = last_commit.unwrap_or_else(|e| e.to_string());
+            repo_stats_result.stats.archived = info.archived;
+            repo_stats_result.stats.size = info.size;
+            repo_stats_result.stats.visibility = info.visibility;
+            repo_stats_result.stats.created_at = info.created_at;
+            repo_stats_result.stats.license = info.license;
+            repo_stats_result.stats.allow_auto_merge = info.allow_auto_merge;
         },
         Err(e) => {
             repo_stats_result.errors.push(format!("Failed to fetch repository info for {}/{}: {}", owner, name, e));
