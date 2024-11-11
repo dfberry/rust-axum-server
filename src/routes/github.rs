@@ -17,15 +17,21 @@ use crate::github::fetch_all_repos_stats;
 
 #[derive(Deserialize)]
 pub struct RepoRequestBody {
-    token: String,
+    token: Option<String>,
     org_or_user: String,
     repo_name: String,
 }
 pub async fn github_post_repo_handler(
-    Extension(_): Extension<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<RepoRequestBody>,
 ) -> impl IntoResponse {
-    let token = payload.token;
+
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
+
     let org_or_owner = payload.org_or_user;
     let repo_name = payload.repo_name;
 
@@ -67,14 +73,20 @@ pub async fn github_post_repo_handler(
 #[derive(Deserialize)]
 pub struct QueryRequestBody {
     query: String,
-    token: String
+    token: Option<String>,
 }
 
 pub async fn github_post_query_issue_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<QueryRequestBody>,
 ) -> impl IntoResponse {
-    let token = state.config.read().unwrap().env_file.pat.clone();
+
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
+
     let query = payload.query; // "tokei is:pr";
 
     if (query.is_empty()) {
@@ -106,13 +118,25 @@ pub async fn github_post_query_issue_handler(
 
 #[derive(Deserialize)]
 pub struct UserQueryParams {
-    username: String,
+    username: String
+}
+
+#[derive(Deserialize)]
+pub struct UserQueryRequestBody {
+    token: Option<String>,
 }
 pub async fn github_get_user_handler(
     Extension(state): Extension<Arc<AppState>>,
     Query(params): Query<UserQueryParams>,
+    Json(payload): Json<UserQueryRequestBody>,
 ) -> impl IntoResponse {
-    let token = state.config.read().unwrap().env_file.pat.clone();
+
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
+
     let username = params.username;
 
     match GitHub::user_profile(&token, &username).await {
@@ -139,13 +163,19 @@ pub async fn github_get_user_handler(
 #[derive(Deserialize)]
 pub struct RepoStatsParams {
     repos: Vec<String>,
+    token: Option<String>,
 }
+
 pub async fn github_post_repo_stats_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<RepoStatsParams>,
 ) -> impl IntoResponse {
 
-    let token = state.config.read().unwrap().env_file.pat.clone();
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
     let repos = payload.repos;
 
     let stats = fetch_all_repos_stats(&token, repos).await;
@@ -160,7 +190,7 @@ pub async fn github_post_repo_stats_handler(
 
 #[derive(Deserialize)]
 pub struct GetProfileRequest {
-    token: String,
+    token: Option<String>,
 }
 
 pub async fn github_get_user_profile_handler(
@@ -168,7 +198,11 @@ pub async fn github_get_user_profile_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<GetProfileRequest>,
 ) -> impl IntoResponse {
-    let token = payload.token;
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
     let username = username;
 
     match GitHub::user_profile(&token, &username).await {
@@ -193,15 +227,19 @@ pub async fn github_get_user_profile_handler(
 
 #[derive(Deserialize)]
 pub struct RepoIssuesRequestBody {
-    token: String,
+    token: Option<String>,
     org_or_user: String,
     repo_name: String,
 }
 pub async fn github_get_repo_issues_handler(
-    Extension(_): Extension<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<RepoRequestBody>,
 ) -> impl IntoResponse {
-    let token = payload.token;
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
     let org_or_owner = payload.org_or_user;
     let repo_name = payload.repo_name;
 
@@ -256,10 +294,14 @@ pub async fn github_get_repo_issues_handler(
 }
 
 pub async fn github_get_repo_prs_handler(
-    Extension(_): Extension<Arc<AppState>>,
+    Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<RepoRequestBody>,
 ) -> impl IntoResponse {
-    let token = payload.token;
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
     let org_or_owner = payload.org_or_user;
     let repo_name = payload.repo_name;
 
@@ -317,7 +359,11 @@ pub async fn github_get_query_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<QueryRequestBody>,
 ) -> impl IntoResponse {
-    let token = payload.token; // "tokei is:pr";
+    // if the query token is empty, use the state token
+    let token = match payload.token {
+        Some(t) => t,
+        None => state.config.read().unwrap().env_file.pat.clone(),
+    };
     let query = payload.query; // "tokei is:pr";
 
     if (query.is_empty()) {

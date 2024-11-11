@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.1
+
+* Token is temporarily optional in json body, suplimented by BE PAT
+
 ## 0.4.0
 
 * New routes

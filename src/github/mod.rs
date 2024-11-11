@@ -81,6 +81,9 @@ fn convert_pr_page_to_page_def(page: Page<PullRequest>) -> PageDef<PullRequestQu
 
 impl GitHub {
     pub async fn repo(token: &str, org_or_user: &str, repo_name: &str) -> Result<Repository> {
+
+        println!("REPO: Token: {}, Org: {}, Repo: {}", token, org_or_user, repo_name);
+
         let octocrab = Octocrab::builder()
             .personal_token(token.to_string())
             .build()?;
@@ -90,6 +93,9 @@ impl GitHub {
         Ok(repo)
     }
     pub async fn repo_issues(token: &str, org_or_user: &str, repo_name: &str) -> Result<PageDef<IssueQueryDef>> {
+        
+        println!("REPO ISSUES: Token: {}, Org: {}, Repo: {}", token, org_or_user, repo_name);
+        
         let octocrab = Octocrab::builder()
             .personal_token(token.to_string())
             .build()?;
@@ -105,6 +111,9 @@ impl GitHub {
         Ok(page_def)
     }
     pub async fn repo_prs(token: &str, org_or_user: &str, repo_name: &str) -> Result<PageDef<PullRequestQueryDef>> {
+        
+        println!("REPO_PRS: Token: {}, Org: {}, Repo: {}", token, org_or_user, repo_name);
+        
         let octocrab = Octocrab::builder()
             .personal_token(token.to_string())
             .build()?;
@@ -120,6 +129,9 @@ impl GitHub {
         Ok(page_def)
     }
     pub async fn user_profile(token: &str, user: &str) -> Result<User> {
+
+        println!("USER PROFILE: Token: {}, User: {}", token, user);
+
         let octocrab = Octocrab::builder()
             .personal_token(token.to_string())
             .build()?;
@@ -129,6 +141,9 @@ impl GitHub {
         Ok(repo)
     }
     pub async fn query(token: &str, query: &str) -> Result<PageDef<IssueQueryDef>> {
+
+        println!("QUERY: Token: {}, Query: {}", token, query);
+
         let octocrab = Octocrab::builder()
             .personal_token(token.to_string())
             .build()?;
@@ -171,6 +186,8 @@ pub struct RepoStatsResult {
 }
 
 async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
+
+    println!("REPO_STATS: Repo: {}", repo);
 
     let mut repo_stats_result = RepoStatsResult {
         repo_name: repo.to_string(),
@@ -221,6 +238,9 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
 
 
 pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoStatsResult> {
+
+    println!("ALL REPO STATS: Token: {}, Repos: {}", token, repos.join(", "));
+
     let octocrab = Octocrab::builder()
         .personal_token(token.to_string())
         .build()
@@ -240,11 +260,17 @@ pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoS
 }
 
 pub async fn fetch_community_metrics(octocrab: &Octocrab, repo: &str) -> Result<RepositoryMetrics> {
+    
+    println!("COMMUNITY_METRICS: Repo: {}", repo);
+
     let metrics = octocrab.repos("dfberry", repo).get_community_profile_metrics().await?;
     Ok(metrics)
 }
 
 fn get_commit_date(commit: &RepoCommit) -> String {
+
+    println!("COMMIT_DATE: commit: {}", commit.sha);
+
     let author_date = commit
     .commit
     .author.as_ref().map(|a| a.date.clone()).unwrap();
@@ -253,6 +279,8 @@ fn get_commit_date(commit: &RepoCommit) -> String {
 }
 
 pub async fn fetch_last_commit(octocrab: &Octocrab, repo: &str) -> Result<String> {
+
+    println!("LAST_COMMIT_DATE: Repo: {}", repo);
 
     let (owner, name) = parse_repo_string(repo)?;
 
@@ -284,6 +312,9 @@ pub struct GitHubApi {
 
 impl GitHubApi{
     pub async fn get_user_by_token(token: &str) -> Result<User, Box<dyn Error>> {
+
+        println!("GET_USER_BY_TOKEN: Token: {}", token);
+
         let client = Client::new();
         let request_url = "https://api.github.com/user";
 
