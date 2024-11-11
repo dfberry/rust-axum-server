@@ -1,3 +1,4 @@
+use octocrab::models::pulls::PullRequest;
 use octocrab::models::Repository;
 use octocrab::models::UserProfile as User;
 use octocrab::models::issues::Issue;
@@ -15,6 +16,8 @@ use anyhow::{Result, Context, anyhow};
 use chrono::DateTime;
 use chrono::Utc;
 use crate::utils::{option_datetime_to_string, parse_repo_string};
+use reqwest::Client;
+use std::error::Error;
 
 #[derive(Serialize, Deserialize)]
 pub struct IssueQueryDef {
@@ -56,6 +59,26 @@ fn convert_page_to_page_def(page: Page<Issue>) -> PageDef<IssueQueryDef> {
     }
 }
 
+
+#[derive(Serialize, Deserialize)]
+pub struct PullRequestQueryDef {
+    #[serde(flatten)]
+    inner: octocrab::models::pulls::PullRequest
+}
+
+fn convert_pr_page_to_page_def(page: Page<PullRequest>) -> PageDef<PullRequestQueryDef> {
+    let items = page.items.into_iter().map(|pr| PullRequestQueryDef { inner: pr }).collect();
+    PageDef {
+        items,
+        incomplete_results: page.incomplete_results,
+        total_count: page.total_count,
+        next: page.next,
+        prev: page.prev,
+        first: page.first,
+        last: page.last,
+    }
+}
+
 impl GitHub {
     pub async fn repo(token: &str, org_or_user: &str, repo_name: &str) -> Result<Repository> {
         let octocrab = Octocrab::builder()
@@ -65,6 +88,36 @@ impl GitHub {
         let repo = octocrab.repos(org_or_user, repo_name).get().await?;
 
         Ok(repo)
+    }
+    pub async fn repo_issues(token: &str, org_or_user: &str, repo_name: &str) -> Result<PageDef<IssueQueryDef>> {
+        let octocrab = Octocrab::builder()
+            .personal_token(token.to_string())
+            .build()?;
+
+        let issues = octocrab
+            .issues(org_or_user, repo_name)
+            .list()
+            .send()
+            .await?;
+
+        let page_def = convert_page_to_page_def(issues);
+
+        Ok(page_def)
+    }
+    pub async fn repo_prs(token: &str, org_or_user: &str, repo_name: &str) -> Result<PageDef<PullRequestQueryDef>> {
+        let octocrab = Octocrab::builder()
+            .personal_token(token.to_string())
+            .build()?;
+
+        let prs = octocrab
+            .pulls(org_or_user, repo_name)
+            .list()
+            .send()
+            .await?;
+
+        let page_def = convert_pr_page_to_page_def(prs);
+
+        Ok(page_def)
     }
     pub async fn user_profile(token: &str, user: &str) -> Result<User> {
         let octocrab = Octocrab::builder()
@@ -167,7 +220,6 @@ async fn fetch_repo_stats(octocrab: &Octocrab, repo: &str) -> RepoStatsResult {
 }
 
 
-
 pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoStatsResult> {
     let octocrab = Octocrab::builder()
         .personal_token(token.to_string())
@@ -222,4 +274,28 @@ pub async fn fetch_last_commit(octocrab: &Octocrab, repo: &str) -> Result<String
     // Get date of last commit
     let commit_date = get_commit_date(&commit);
     Ok(commit_date)
+}
+
+
+#[derive(Debug)]
+pub struct GitHubApi {
+    pub name: String,
+}
+
+impl GitHubApi{
+    pub async fn get_user_by_token(token: &str) -> Result<User, Box<dyn Error>> {
+        let client = Client::new();
+        let request_url = "https://api.github.com/user";
+
+        let response = client
+            .get(request_url)
+            .header("Authorization", format!("token {}", token))
+            .header("User-Agent", "rust-reqwest")
+            .send()
+            .await?
+            .json::<User>()
+            .await?;
+        println!("{response:#?}");
+        Ok(response)
+    }
 }
