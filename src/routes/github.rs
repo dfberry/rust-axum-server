@@ -5,13 +5,15 @@ use axum::{
     }, 
     http::StatusCode,
     body::Body,
-    extract::{Query, Json, Extension},
+    extract::{Path, Query, Json, Extension},
 };
 use std::sync::Arc;
 use crate::state::AppState;
 use serde::Deserialize;
 use serde_json::json;
-use crate::github::*;
+use crate::github::GitHub;
+use crate::github::GitHubApi;
+use crate::github::fetch_all_repos_stats;
 
 #[derive(Deserialize)]
 pub struct RepoRequestBody {
@@ -65,6 +67,7 @@ pub async fn github_post_repo_handler(
 #[derive(Deserialize)]
 pub struct QueryRequestBody {
     query: String,
+    token: String
 }
 
 pub async fn github_post_query_issue_handler(
@@ -154,3 +157,192 @@ pub async fn github_post_repo_stats_handler(
         .body(Body::from(json_stats.to_string()))
         .unwrap()
 }   
+
+#[derive(Deserialize)]
+pub struct GetProfileRequest {
+    token: String,
+}
+
+pub async fn github_get_user_profile_handler(
+    Path(username): Path<String>,
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<GetProfileRequest>,
+) -> impl IntoResponse {
+    let token = payload.token;
+    let username = username;
+
+    match GitHub::user_profile(&token, &username).await {
+        Ok(repo) => {
+            let json_repo = json!(repo);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+
+#[derive(Deserialize)]
+pub struct RepoIssuesRequestBody {
+    token: String,
+    org_or_user: String,
+    repo_name: String,
+}
+pub async fn github_get_repo_issues_handler(
+    Extension(_): Extension<Arc<AppState>>,
+    Json(payload): Json<RepoRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token;
+    let org_or_owner = payload.org_or_user;
+    let repo_name = payload.repo_name;
+
+    // if the token is empty, return a 401 Unauthorized
+    if token.is_empty() {
+
+        println!("github_post_repo_handler::Token is empty");
+
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+
+        println!("github_post_repo_handler::Org or repo name is empty");
+
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    println!("github_post_repo_handler::Fetching org_or_owner & repo: {} and {}", org_or_owner, repo_name);
+    println!("github_post_repo_handler::Token: {}", token);
+
+    match GitHub::repo_issues(&token, &org_or_owner, &repo_name).await {
+        Ok(repo) => {
+            println!("github_post_repo_handler::Fetched repo ok: {}/{}", org_or_owner, repo_name);
+
+            let json_repo = json!(repo);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            println!("github_post_repo_handler::Fetched repo error: {}/{}", org_or_owner, repo_name);
+
+            let error_message = format!("Error: {:?}", e);
+            println!("github_post_repo_handler::Error: {:?}", error_message);
+
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+
+pub async fn github_get_repo_prs_handler(
+    Extension(_): Extension<Arc<AppState>>,
+    Json(payload): Json<RepoRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token;
+    let org_or_owner = payload.org_or_user;
+    let repo_name = payload.repo_name;
+
+    // if the token is empty, return a 401 Unauthorized
+    if token.is_empty() {
+
+        println!("github_post_repo_handler::Token is empty");
+
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+
+        println!("github_post_repo_handler::Org or repo name is empty");
+
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    println!("github_post_repo_handler::Fetching org_or_owner & repo: {} and {}", org_or_owner, repo_name);
+    println!("github_post_repo_handler::Token: {}", token);
+
+    match GitHub::repo_prs(&token, &org_or_owner, &repo_name).await {
+        Ok(repo) => {
+            println!("github_post_repo_handler::Fetched repo ok: {}/{}", org_or_owner, repo_name);
+
+            let json_repo = json!(repo);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_repo.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            println!("github_post_repo_handler::Fetched repo error: {}/{}", org_or_owner, repo_name);
+
+            let error_message = format!("Error: {:?}", e);
+            println!("github_post_repo_handler::Error: {:?}", error_message);
+
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+
+pub async fn github_get_query_handler(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<QueryRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token; // "tokei is:pr";
+    let query = payload.query; // "tokei is:pr";
+
+    if (query.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    match GitHub::query(&token, &query).await {
+        Ok(query_result) => {
+            let json_query_result = json!(query_result);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_query_result.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}

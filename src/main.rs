@@ -15,6 +15,9 @@ use axum::{
 //use hyper::header::HeaderValue;
 use std::env;
 use std::sync::{Arc, RwLock};
+use tower_http::trace::TraceLayer;
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
+use tower::ServiceBuilder;
 //--------------------------------------------------
 // Add the following imports for the new modules
 mod state;
@@ -27,10 +30,14 @@ mod utils;
 use state::get_cargo_version;
 
 use routes::github::{
+    github_get_user_profile_handler, 
     github_get_user_handler, 
+    github_get_query_handler,
     github_post_query_issue_handler, 
     github_post_repo_handler,
-    github_post_repo_stats_handler
+    github_post_repo_stats_handler,
+    github_get_repo_issues_handler,
+    github_get_repo_prs_handler
 };
 use routes::root::root_get_handler;
 use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
@@ -40,6 +47,11 @@ use state::{AppState, Config};
 // main
 #[tokio::main]
 async fn main() {
+
+    tracing_subscriber::registry()
+        .with(tracing_subscriber::fmt::layer())
+        .init();
+
     // Get the port from the environment variable
     let env_config = match Config::get().await {
         Ok(env_config) => env_config,
@@ -73,7 +85,11 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", get(root_get_handler))
-        .route("/github/user", get(github_get_user_handler))
+        .route("/github/user/:username", get(github_get_user_profile_handler))   // NEW
+        .route("/github/repo/issues", get(github_get_repo_issues_handler))       // NEW
+        .route("/github/repo/prs", get(github_get_repo_prs_handler))             // NEW
+        .route("/github/query", get(github_get_query_handler))                   // NEW
+        .route("/github/user", post(github_get_user_handler))
         .route("/github/repo", post(github_post_repo_handler))
         .route("/github/query/issue", post(github_post_query_issue_handler))
         .route("/github/repos/stats", post(github_post_repo_stats_handler))
@@ -82,7 +98,12 @@ async fn main() {
         .route("/user/:username/watch", post(db_watch_new_handler))
         .route("/user/:username/watches", get(db_watches_all_handler))
         .route("/config", get(handler_get_config))
-        .layer(Extension(shared_state.clone()));
+        .layer(Extension(shared_state.clone()))
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .into_inner(),
+        );
         //.layer(map_response(set_header));// Add the shared config to the application state;
 
     // run it

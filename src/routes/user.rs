@@ -27,6 +27,7 @@ pub struct NewUserRequestBody {
     github_user: String,
 }
 pub async fn db_user_new_handler(
+    Path(github_user): Path<String>,
     Extension(_): Extension<Arc<AppState>>,
     Json(payload): Json<NewUserRequestBody>,
 ) -> impl IntoResponse {
