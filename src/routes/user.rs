@@ -18,7 +18,7 @@ use crate::database::watch::{
     create_watch,
     list_watches
 };
-
+use crate::io::write_json_to_file;
 use serde::Deserialize;
 use serde_json::json;
 
@@ -45,6 +45,11 @@ pub async fn db_user_new_handler(
 
     let json_user = json!(user);
 
+    let file_name = format!("db_user_{}.json", github_user);
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_user).await.unwrap();
+
+
     Response::builder()
         .header(http::header::CONTENT_TYPE, "application/json")
         .status(StatusCode::OK)
@@ -57,6 +62,12 @@ pub async fn db_users_all_handler(Extension(_): Extension<Arc<AppState>>) -> imp
     let users = list_users(&mut connection).await;
 
     let json_users = json!(users);
+
+    let file_name = format!("db_all_users.json");
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_users).await.unwrap();
+
+
 
     Response::builder()
         .header(http::header::CONTENT_TYPE, "application/json")
@@ -97,6 +108,12 @@ pub async fn db_watch_new_handler(
 
     let json_watch = json!(watch);
 
+    let file_name = format!("db_user_watch_new_{}_{}.json", org_repo_name, watch_type);
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_watch).await.unwrap();
+
+
+
     Response::builder()
         .header(http::header::CONTENT_TYPE, "application/json")
         .status(StatusCode::OK)
@@ -113,6 +130,11 @@ pub async fn db_watches_all_handler(
     let watches = list_watches(&mut connection).await;
 
     let json_watches = json!(watches);
+
+    let file_name = format!("db_user_watch_all.json");
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_watches).await.unwrap();
+
 
     Response::builder()
         .header(http::header::CONTENT_TYPE, "application/json")

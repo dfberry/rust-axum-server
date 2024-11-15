@@ -1,0 +1,69 @@
+[
+  {
+    "errors": [],
+    "metrics": {
+      "content_reports_enabled": false,
+      "description": "MS Learn Node Essentials sample code",
+      "documentation": "https://learn.microsoft.com/training/paths/build-javascript-applications-nodejs/",
+      "files": {
+        "code_of_conduct": {
+          "html_url": "https://github.com/MicrosoftDocs/node-essentials/blob/main/CODE_OF_CONDUCT.md",
+          "key": "other",
+          "name": "Other",
+          "url": "https://api.github.com/repos/MicrosoftDocs/node-essentials/community/code_of_conduct"
+        },
+        "code_of_conduct_file": {
+          "html_url": "https://github.com/MicrosoftDocs/node-essentials/blob/main/CODE_OF_CONDUCT.md",
+          "key": null,
+          "name": null,
+          "url": "https://api.github.com/repos/MicrosoftDocs/node-essentials/contents/CODE_OF_CONDUCT.md"
+        },
+        "contributing": null,
+        "issue_template": null,
+        "license": {
+          "html_url": "https://github.com/MicrosoftDocs/node-essentials/blob/main/LICENSE",
+          "key": "cc-by-4.0",
+          "name": "Creative Commons Attribution 4.0 International",
+          "url": "https://api.github.com/licenses/cc-by-4.0"
+        },
+        "pull_request_template": null,
+        "readme": {
+          "html_url": "https://github.com/MicrosoftDocs/node-essentials/blob/main/README.md",
+          "key": null,
+          "name": null,
+          "url": "https://api.github.com/repos/MicrosoftDocs/node-essentials/contents/README.md"
+        }
+      },
+      "health_percentage": 75,
+      "updated_at": "2020-07-08T14:55:15Z"
+    },
+    "repo_name": "MicrosoftDocs/node-essentials",
+    "stats": {
+      "allow_auto_merge": null,
+      "archived": false,
+      "created_at": "2020-07-08T14:51:56Z",
+      "forks": 157,
+      "last_commit": "2024-09-07 01:16:35 UTC",
+      "license": {
+        "body": null,
+        "conditions": null,
+        "description": null,
+        "featured": null,
+        "html_url": null,
+        "implementation": null,
+        "key": "cc-by-4.0",
+        "limitations": null,
+        "name": "Creative Commons Attribution 4.0 International",
+        "node_id": "MDc6TGljZW5zZTI1",
+        "permissions": null,
+        "spdx_id": "CC-BY-4.0",
+        "url": "https://api.github.com/licenses/cc-by-4.0"
+      },
+      "open_issues": 30,
+      "size": 1167,
+      "stars": 113,
+      "visibility": "public",
+      "watchers": 113
+    }
+  }
+]

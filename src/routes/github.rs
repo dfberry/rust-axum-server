@@ -55,9 +55,9 @@ pub async fn github_post_repo_handler(
         Ok(repo) => {
             let json_repo = json!(repo);
 
-            let file_name = format!("repo_{}_{}.json", org_or_owner, repo_name);
-            let file_path = format!("./data/{}", file_name);
-            let _ = write_json_to_file(&file_path, &json_repo).await.unwrap();
+            let file_name = format!("github_repo_{}_{}.json", org_or_owner, repo_name);
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_repo).await.unwrap();
 
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
@@ -105,6 +105,11 @@ pub async fn github_post_query_issue_handler(
         Ok(query_result) => {
             let json_query_result = json!(query_result);
 
+            let file_name = format!("github_query.json");
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_query_result).await.unwrap();
+
+
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
@@ -148,6 +153,11 @@ pub async fn github_get_user_handler(
         Ok(repo) => {
             let json_repo = json!(repo);
 
+            let file_name = format!("github_user.json");
+            let file_path = "./data/{}";
+            let _ = write_json_to_file(&file_path, &file_name, &json_repo).await.unwrap();
+
+
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
@@ -186,6 +196,12 @@ pub async fn github_post_repo_stats_handler(
     let stats = fetch_all_repos_stats(&token, repos).await;
     let json_stats = json!(stats);
 
+    let file_name = format!("github_repos_stats.json");
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_stats).await.unwrap();
+
+
+
     Response::builder()
         .header(http::header::CONTENT_TYPE, "application/json")
         .status(StatusCode::OK)
@@ -213,6 +229,10 @@ pub async fn github_get_user_profile_handler(
     match GitHub::user_profile(&token, &username).await {
         Ok(repo) => {
             let json_repo = json!(repo);
+
+            let file_name = format!("github_user_profile_{}.json", username);
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_repo).await.unwrap();
 
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
@@ -278,6 +298,12 @@ pub async fn github_get_repo_issues_handler(
 
             let json_repo = json!(repo);
 
+            let file_name = format!("github_repo_issues_{}_{}.json", org_or_owner, repo_name);
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_repo).await.unwrap();
+        
+        
+
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
@@ -340,6 +366,11 @@ pub async fn github_get_repo_prs_handler(
 
             let json_repo = json!(repo);
 
+            let file_name = format!("github_repo_prs_{}_{}.json", org_or_owner, repo_name);
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_repo).await.unwrap();
+        
+
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
@@ -382,6 +413,10 @@ pub async fn github_get_query_handler(
         Ok(query_result) => {
             let json_query_result = json!(query_result);
 
+            let file_name = format!("github_get_query.json");
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_query_result).await.unwrap();
+
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::OK)
@@ -399,13 +434,15 @@ pub async fn github_get_query_handler(
 }
 #[derive(Deserialize)]
 pub struct GitHubRateLimitRequestBody {
-    token: String
+    token: String,
+    username: String,
 }
 pub async fn github_get_user_rate_limit_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<GitHubRateLimitRequestBody>,
 ) -> impl IntoResponse {
     let token = payload.token;
+    let username = payload.username;
 
     if(token.is_empty()) {
         return Response::builder()
@@ -416,7 +453,11 @@ pub async fn github_get_user_rate_limit_handler(
 
     match GitHubApi::rate_limit(&token).await {
         Ok(query_result) => {
-            let json_query_result = json!(query_result);
+            let json_query_result = json!(&query_result);
+
+            let file_name = format!("github_user_rate_limit_{}.json", &username);
+            let file_path = "./data/";
+            let _ = write_json_to_file(&file_path, &file_name, &json_query_result).await.unwrap();
 
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")

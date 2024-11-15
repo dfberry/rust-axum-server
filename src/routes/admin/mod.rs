@@ -9,6 +9,7 @@ use axum::{
 use serde_json::json;
 use std::env;
 use chrono::Utc;
+use crate::io::write_json_to_file;
 
 pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
     // Collect environment variables
@@ -31,6 +32,11 @@ pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> i
         },
         "timestamp": current_time
     });
+
+    // let file_name = format!("app_state.json");
+    // let file_path = format!("./data/{}", file_name);
+    // let _ = write_json_to_file(&file_path, &returned_json).await.unwrap();
+
 
     // Create a HeaderMap and insert the custom header
     let mut headers = HeaderMap::new();

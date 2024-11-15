@@ -47,24 +47,24 @@ use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handl
 use routes::admin::handler_get_config;
 use state::{AppState, Config};
 
-pub async fn write_file_handler() -> impl IntoResponse {
-    let json_blob = serde_json::json!({
-        "name": "John Doe",
-        "age": 43,
-        "phones": [
-            "+44 1234567",
-            "+44 2345678"
-        ]
-    });
+// pub async fn write_file_handler() -> impl IntoResponse {
+//     let json_blob = serde_json::json!({
+//         "name": "John Doe",
+//         "age": 43,
+//         "phones": [
+//             "+44 1234567",
+//             "+44 2345678"
+//         ]
+//     });
 
-    let file_name_and_path = "./data/test.json";
-    io::write_json_to_file(file_name_and_path, &json_blob).await.unwrap();
+//     let file_name_and_path = "./data/test.json";
+//     io::write_json_to_file(file_name_and_path, &json_blob).await.unwrap();
 
-    Response::builder()
-        .status(200)
-        .body(Body::from("success".to_string()))
-        .unwrap()
-}
+//     Response::builder()
+//         .status(200)
+//         .body(Body::from("success".to_string()))
+//         .unwrap()
+// }
 
 
 //--------------------------------------------------
@@ -109,7 +109,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", get(root_get_handler))
-        .route("/test/write", get(write_file_handler))
+        //.route("/test/write", get(write_file_handler))
         .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))   // 0.4.2
         .route("/github/user/:username", get(github_get_user_profile_handler))   // 0.4.1
         .route("/github/repo/issues", get(github_get_repo_issues_handler))       // 0.4.1
