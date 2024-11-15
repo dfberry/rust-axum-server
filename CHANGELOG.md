@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.2
+
+*  .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))
+
 ## 0.4.1
 
 * Token is temporarily optional in json body, suplimented by BE PAT

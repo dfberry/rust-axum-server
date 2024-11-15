@@ -79,6 +79,9 @@ fn convert_pr_page_to_page_def(page: Page<PullRequest>) -> PageDef<PullRequestQu
     }
 }
 
+
+
+
 impl GitHub {
     pub async fn repo(token: &str, org_or_user: &str, repo_name: &str) -> Result<Repository> {
 
@@ -158,6 +161,7 @@ impl GitHub {
 
         Ok(page_def)
     }
+
 }
 
 #[derive(Serialize, Deserialize)]
@@ -309,6 +313,33 @@ pub async fn fetch_last_commit(octocrab: &Octocrab, repo: &str) -> Result<String
 pub struct GitHubApi {
     pub name: String,
 }
+#[derive(Serialize, Deserialize, Debug)]
+pub struct GitHubRateLimit {
+    pub rate: Rate,
+    pub resources: Resources,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Resources {
+    pub core: Rate,
+    pub graphql: Option<Rate>,
+    pub search: Rate,
+    pub code_search: Option<Rate>,
+    pub source_import: Option<Rate>,
+    pub integration_manifest: Option<Rate>,
+    pub code_scanning_upload: Option<Rate>,
+    pub actions_runner_registration: Option<Rate>,
+    pub scim: Option<Rate>,
+    pub dependency_snapshots: Option<Rate>,
+}
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Rate {
+    pub limit: u32,
+    pub used: u32,
+    pub remaining: u32,
+    pub reset: u64,
+}
 
 impl GitHubApi{
     pub async fn get_user_by_token(token: &str) -> Result<User, Box<dyn Error>> {
@@ -327,6 +358,28 @@ impl GitHubApi{
             .json::<User>()
             .await?;
         println!("{response:#?}");
+        Ok(response)
+    }
+    pub async fn rate_limit(token: &str) -> Result<GitHubRateLimit, Box<dyn Error>> {
+        
+        println!("RATE LIMIT: Token: {}", token);
+    
+        let client = Client::new();
+        let request_url = "https://api.github.com/rate_limit";
+        let api_version = "2022-11-28";
+    
+        let response = client
+            .get(request_url)
+            .header("Authorization", format!("token {}", token))
+            .header("User-Agent", "rust-reqwest")
+            .header("X-GitHub-Api-Version", api_version)
+            .header("Accept", "application/vnd.github+json")
+            .send()
+            .await?
+            .json::<GitHubRateLimit>()
+            .await?;
+            
+        println!("{:#?}", response);
         Ok(response)
     }
 }

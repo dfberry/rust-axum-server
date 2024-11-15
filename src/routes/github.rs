@@ -14,6 +14,7 @@ use serde_json::json;
 use crate::github::GitHub;
 use crate::github::GitHubApi;
 use crate::github::fetch_all_repos_stats;
+use crate::io::write_json_to_file;
 
 #[derive(Deserialize)]
 pub struct RepoRequestBody {
@@ -53,6 +54,10 @@ pub async fn github_post_repo_handler(
     match GitHub::repo(&token, &org_or_owner, &repo_name).await {
         Ok(repo) => {
             let json_repo = json!(repo);
+
+            let file_name = format!("repo_{}_{}.json", org_or_owner, repo_name);
+            let file_path = format!("./data/{}", file_name);
+            let _ = write_json_to_file(&file_path, &json_repo).await.unwrap();
 
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
@@ -374,6 +379,42 @@ pub async fn github_get_query_handler(
     }
 
     match GitHub::query(&token, &query).await {
+        Ok(query_result) => {
+            let json_query_result = json!(query_result);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_query_result.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+#[derive(Deserialize)]
+pub struct GitHubRateLimitRequestBody {
+    token: String
+}
+pub async fn github_get_user_rate_limit_handler(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<GitHubRateLimitRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token;
+
+    if(token.is_empty()) {
+        return Response::builder()
+            .status(StatusCode::BAD_GATEWAY)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    match GitHubApi::rate_limit(&token).await {
         Ok(query_result) => {
             let json_query_result = json!(query_result);
 
