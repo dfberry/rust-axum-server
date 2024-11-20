@@ -1,24 +1,35 @@
-use std::sync::Arc;
-use crate::state::AppState;
 use axum::{
     extract::Extension,
-    response::IntoResponse,
-    http::header::HeaderMap,
+    response::{IntoResponse, Response},
     Json,
+    http::StatusCode,
+    http::HeaderMap,
+    Router,
+    routing::get
 };
 use serde_json::json;
 use std::env;
 use chrono::Utc;
+use std::sync::Arc;
 use crate::io::write_json_to_file;
+use crate::Config;
+use tokio::sync::RwLock;
 
-pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+#[derive(Clone)]
+pub struct AppState {
+    pub config: Arc<RwLock<Config>>,
+}
+
+pub async fn handler_get_config(
+    Extension(state): Extension<Arc<AppState>>
+) -> impl IntoResponse {
     // Collect environment variables
     let env_vars = env::vars()
         .map(|(key, value)| json!({ "key": key, "value": value }))
         .collect::<Vec<_>>();
 
     // Collect app state
-    let app_state = state.config.read().unwrap();
+    let app_state = state.config.read().await;
 
     // Get the current UTC date-time
     let current_time = Utc::now().to_rfc3339();
@@ -33,10 +44,9 @@ pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> i
         "timestamp": current_time
     });
 
-    // let file_name = format!("app_state.json");
-    // let file_path = format!("./data/{}", file_name);
-    // let _ = write_json_to_file(&file_path, &returned_json).await.unwrap();
-
+    let file_name = "app_config.json";
+    let file_path = "./data/";
+    write_json_to_file(&file_path, &file_name, &returned_json).await.unwrap();
 
     // Create a HeaderMap and insert the custom header
     let mut headers = HeaderMap::new();

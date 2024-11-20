@@ -43,7 +43,13 @@ use routes::github::{
     github_get_user_rate_limit_handler
 };
 use routes::root::root_get_handler;
-use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
+use routes::user::{
+    db_user_new_handler, 
+    db_users_all_handler, 
+    db_watch_new_handler, 
+    db_watches_all_handler,
+    db_watches_by_user_all_handler
+};
 use routes::admin::handler_get_config;
 use state::{AppState, Config};
 
@@ -110,20 +116,20 @@ async fn main() {
     let app = Router::new()
         .route("/", get(root_get_handler))
         //.route("/test/write", get(write_file_handler))
-        .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))   // 0.4.2
-        .route("/github/user/:username", get(github_get_user_profile_handler))   // 0.4.1
-        .route("/github/repo/issues", get(github_get_repo_issues_handler))       // 0.4.1
-        .route("/github/repo/prs", get(github_get_repo_prs_handler))             // 0.4.1
-        .route("/github/query", get(github_get_query_handler))                   // 0.4.1
-        .route("/github/user", post(github_get_user_handler))
-        .route("/github/repo", post(github_post_repo_handler))
-        .route("/github/query/issue", post(github_post_query_issue_handler))
-        .route("/github/repos/stats", post(github_post_repo_stats_handler))
-        .route("/user", post(db_user_new_handler))
-        .route("/users", get(db_users_all_handler))
-        .route("/user/:username/watch", post(db_watch_new_handler))
-        .route("/user/:username/watches", get(db_watches_all_handler))
+        //.route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))   // 0.4.2
         .route("/config", get(handler_get_config))
+        .route("/github/query", get(github_get_query_handler))
+        .route("/github/query/issue", post(github_post_query_issue_handler))
+        .route("/github/repo", post(github_post_repo_handler))
+        .route("/github/repo/issues", get(github_get_repo_issues_handler))
+        .route("/github/repo/prs", get(github_get_repo_prs_handler))
+        .route("/github/repos/stats", post(github_post_repo_stats_handler))
+        .route("/github/user", post(github_get_user_handler))
+        .route("/github/user/:username", get(github_get_user_profile_handler))
+        .route("/user", post(db_user_new_handler))
+        .route("/user/:github_user_id/watch", post(db_watch_new_handler))
+        .route("/user/:github_user_id/watches", get(db_watches_by_user_all_handler))
+        .route("/users", get(db_users_all_handler))
         .layer(Extension(shared_state.clone()))
         .layer(
             ServiceBuilder::new()

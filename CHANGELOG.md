@@ -2,7 +2,8 @@
 
 ## 0.4.2
 
-*  .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))
+* .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler))
+* Debug output JSON to file
 
 ## 0.4.1
 

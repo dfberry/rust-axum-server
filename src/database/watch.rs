@@ -39,6 +39,22 @@ pub async fn list_watches(connection: &mut PgConnection) -> Vec<Watch> {
     results
 }
 
+pub async fn list_watches_by_user(connection: &mut PgConnection, github_user_id: &str) -> Vec<Watch> {
+
+    use crate::schema::watches::dsl::*;
+
+    let results = watches
+        .filter(github_user_id.eq(github_user_id))
+        .limit(5)
+        .select(Watch::as_select())
+        .load(connection)
+        .expect("Error loading watches");
+
+    println!("Displaying {} watches", results.len());
+
+    results
+}
+
 pub async fn create_watch(connection: &mut PgConnection, github_user_id: &str, org_repo_name: &str, watch_type: &str) -> Watch {
 
     use crate::schema::watches;

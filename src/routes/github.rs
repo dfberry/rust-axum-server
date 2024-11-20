@@ -438,15 +438,15 @@ pub struct GitHubRateLimitRequestBody {
     username: String,
 }
 pub async fn github_get_user_rate_limit_handler(
-    Extension(state): Extension<Arc<AppState>>,
+    
     Json(payload): Json<GitHubRateLimitRequestBody>,
 ) -> impl IntoResponse {
     let token = payload.token;
     let username = payload.username;
 
-    if(token.is_empty()) {
+    if token.is_empty() {
         return Response::builder()
-            .status(StatusCode::BAD_GATEWAY)
+            .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())
             .unwrap();
     }
@@ -454,8 +454,8 @@ pub async fn github_get_user_rate_limit_handler(
     match GitHubApi::rate_limit(&token).await {
         Ok(query_result) => {
             let json_query_result = json!(&query_result);
-
-            let file_name = format!("github_user_rate_limit_{}.json", &username);
+ 
+            let file_name = format!("github_user_rate_limit_{}.json", username);
             let file_path = "./data/";
             let _ = write_json_to_file(&file_path, &file_name, &json_query_result).await.unwrap();
 

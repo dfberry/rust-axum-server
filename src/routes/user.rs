@@ -16,7 +16,8 @@ use crate::database::user::{
 };
 use crate::database::watch::{
     create_watch,
-    list_watches
+    list_watches,
+    list_watches_by_user
 };
 use crate::io::write_json_to_file;
 use serde::Deserialize;
@@ -128,6 +129,28 @@ pub async fn db_watches_all_handler(
     let mut connection = establish_connection();
 
     let watches = list_watches(&mut connection).await;
+
+    let json_watches = json!(watches);
+
+    let file_name = format!("db_user_watch_all.json");
+    let file_path = "./data/";
+    let _ = write_json_to_file(&file_path, &file_name, &json_watches).await.unwrap();
+
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_watches.to_string()))
+        .unwrap()
+}
+
+pub async fn db_watches_by_user_all_handler(
+    Path(github_user_id): Path<String>,
+    Extension(_): Extension<Arc<AppState>>,
+) -> impl IntoResponse {
+    let mut connection = establish_connection();
+
+    let watches = list_watches_by_user(&mut connection, &github_user_id).await;
 
     let json_watches = json!(watches);
 

@@ -1,0 +1,7 @@
+POST http://localhost:4000/github/user HTTP/1.1
+content-type: application/json
+
+{
+    "token": "{{$dotenv %PAT}}",
+    "username": "dfberry"
+}

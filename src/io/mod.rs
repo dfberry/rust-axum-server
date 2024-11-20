@@ -18,32 +18,56 @@ pub async fn write_json_to_file(
     println!("Writing JSON to file: {}", file_path_with_timestamp);
 
     // Create the directory path if it doesn't exist
+    // Create the directory path if it doesn't exist
     if let Some(parent) = Path::new(&file_path_with_timestamp).parent() {
-        fs::create_dir_all(parent).await?;
+        if let Err(e) = fs::create_dir_all(parent).await {
+            eprintln!("Error creating directory: {:?}", e);
+            return Ok(()); // Return Ok(()) to ensure no error is propagated
+        }
     }
-
     let result = async {
-        let mut file = OpenOptions::new()
+        let mut file = match fs::OpenOptions::new()
             .read(true)
             .write(true)
             .create(true) // Create the file if it doesn't exist
             .open(&file_path_with_timestamp)
-            .await?;
+            .await {
+                Ok(file) => file,
+                Err(e) => {
+                    eprintln!("Error opening file: {:?}", e);
+                    return Ok(()); // Return Ok(()) to ensure no error is propagated
+                }
+            };
     
-        file.write_all(serde_json::to_string_pretty(json_blob)?.as_bytes()).await?;
-        file.flush().await?;
+        let json_string = match serde_json::to_string_pretty(json_blob) {
+            Ok(json) => json,
+            Err(e) => {
+                eprintln!("Error serializing JSON: {:?}", e);
+                return Ok(()); // Return Ok(()) to ensure no error is propagated
+            }
+        };
+
+        if let Err(e) = file.write_all(json_string.as_bytes()).await {
+            eprintln!("Error writing to file: {:?}", e);
+            return Ok(()); // Return Ok(()) to ensure no error is propagated
+        }
     
-        Ok::<(), Box<dyn std::error::Error>>(())
+        if let Err(e) = file.flush().await {
+            eprintln!("Error flushing file: {:?}", e);
+            return Ok(()); // Return Ok(()) to ensure no error is propagated
+        }
+    
+        Ok::<(), ()>(())
     }.await;
 
     match result {
         Ok(_) => {
             println!("Successfully wrote JSON to file: {}", file_path_with_timestamp);
-            Ok(())
         },
-        Err(e) => {
-            eprintln!("Error writing JSON to file: {:?}", e);
-            Err(e)
+        Err(_) => {
+            eprintln!("Error writing JSON to file");
         },
     }
+
+    Ok(())
 }

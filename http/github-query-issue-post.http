@@ -4,3 +4,7 @@ content-type: application/json
 {
     "query": "dfberry is:issue"
 }
+
+// dfberry is:pr
+// repo:${repo} type:issue created:${dateRange.start}..${dateRange.end};
+// repo:azure-samples/azure-typescript-e2e-apps type:issue created:2021-01-01..2021-01-31
