@@ -19,6 +19,7 @@ use std::sync::{Arc, RwLock};
 use tower_http::trace::TraceLayer;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use tower::ServiceBuilder;
+use hyper::header::HeaderValue;
 //--------------------------------------------------
 // Add the following imports for the new modules
 mod state;
@@ -135,22 +136,22 @@ async fn main() {
             ServiceBuilder::new()
                 .layer(TraceLayer::new_for_http())
                 .into_inner(),
-        );
-        //.layer(map_response(set_header));// Add the shared config to the application state;
+        )
+        .layer(middleware::from_fn(version_header));
 
     // run it
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
 }
-// async fn set_header<B>(mut response: Response<B>, Extension(shared_state): Extension<Arc<AppState>>) -> Response<B> {
-//     let version = get_cargo_version().await.unwrap();
+async fn version_header(
+    request: Request, 
+    next: Next
+) -> Response {
+    let mut response = next.run(request).await;
 
-//     // Access the env_config values
-//     let env_config = shared_state.config.read().unwrap();
-//     let port = &env_config.env_file.port;
+    // do something with `response`...
+    response.headers_mut().insert("X-Version", HeaderValue::from_static("1.0.0"));
 
-//     response.headers_mut().insert("x-source-board-version", HeaderValue::from_str(&version).unwrap());
-//     response.headers_mut().insert("x-source-board-port", HeaderValue::from_str(port).unwrap());
-//     response
-// }
+    response
+}
