@@ -55,3 +55,40 @@ pub async fn create_watch(connection: &mut PgConnection, github_user_id: &str, o
         .get_result(connection)
         .expect("Error saving new watch")
 }
+pub struct PagedResult<T> {
+    pub items: Vec<T>,
+    pub has_more: bool,
+}
+
+pub async fn list_watches_by_user(
+    connection: &mut PgConnection,
+    db_github_user_id: &str,
+    page: i64,
+    page_size: i64,
+) -> PagedResult<Watch> {
+    use crate::schema::watches::dsl::*;
+
+    println!("Listing watches for user: {}", db_github_user_id);
+
+    let offset = (page - 1) * page_size;
+    let limit = page_size + 1; // Fetch one more item to check if there are more pages
+
+    let results: Vec<Watch> = watches
+        .filter(github_user_id.eq(db_github_user_id))
+        .offset(offset)
+        .limit(limit)
+        .select(Watch::as_select())
+        .load(connection)
+        .expect("Error loading watches");
+
+    let has_more = results.len() as i64 > page_size;
+    let items = if has_more {
+        results.into_iter().take(page_size as usize).collect()
+    } else {
+        results
+    };
+
+    println!("Displaying {} watches", items.len());
+
+    PagedResult { items, has_more }
+}
