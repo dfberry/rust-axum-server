@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.2
+
+* `x-source-board-version`: 0.4.2 - the /config route has its own version `x-source-board-version-config: 0.4.1`
+
 ## 0.4.1
 
 * Token is temporarily optional in json body, suplimented by BE PAT
