@@ -1,0 +1,75 @@
+name: Deploy to ACA Stage
+
+env:
+  AZURE_CONTAINER_APP_NAME: dfberrycontainerapp-stage
+  AZURE_GROUP_NAME: rust-axum-server
+  AZURE_CONTAINER_REGISTRY: dfberryregistry
+  IMAGE_NAME: server-source-board-rust
+on:
+  # Automatically trigger it when detected changes in repo. Remove comments to enable
+  push:
+   branches: 
+     [ diberry/1114-feature-rate-limit ]
+
+  # Allow mannually trigger 
+  workflow_dispatch:    
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Print out app version
+        run: |
+          VERSION=$(grep '^version' Cargo.toml | sed -E 's/version = "(.*)"/\1/')
+          echo "APP_VERSION=${VERSION}" >>${GITHUB_ENV}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Log in to Azure Container Registry
+        uses: azure/docker-login@v1
+        with:
+          login-server: ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}
+          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Lowercase the repo name and username
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY,,}" >>${GITHUB_ENV}
+
+      - name: Build and push container image to Azure Container Registry
+        uses: docker/build-push-action@v2
+        with:
+          push: true
+          tags: |
+            ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          file: ./Dockerfile
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Extract repository name
+        id: extract_repo
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+
+      - name: Deploy to containerapp
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az config set extension.use_dynamic_install=yes_without_prompt
+            az containerapp registry set -n ${{ env.AZURE_CONTAINER_APP_NAME }} -g ${{ env.AZURE_GROUP_NAME }} --server ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }} --username ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }} --password ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+            az containerapp update -n ${{ env.AZURE_CONTAINER_APP_NAME }} -g ${{ env.AZURE_GROUP_NAME }} --image ${{ secrets.AZURE_CONTAINER_REGISTRY_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
