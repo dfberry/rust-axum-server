@@ -34,15 +34,9 @@ mod utils;
 use state::get_cargo_version;
 
 use routes::github::{
-    github_get_user_profile_handler, 
-    github_get_user_handler, 
-    github_get_query_handler,
-    github_post_query_issue_handler, 
-    github_post_repo_handler,
-    github_post_repo_stats_handler,
-    github_get_repo_issues_handler,
-    github_get_repo_prs_handler
+    github_get_query_handler, github_get_repo_issues_handler, github_get_repo_prs_handler, github_get_user_by_token, github_get_user_handler, github_get_user_profile_handler, github_get_user_rate_limit_handler, github_post_query_issue_handler, github_post_repo_handler, github_post_repo_stats_handler
 };
+use github::GitHubApi;
 use routes::root::root_get_handler;
 use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
 use routes::admin::handler_get_config;
@@ -89,6 +83,8 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", get(root_get_handler))
+        .route("/github/user/token", get(github_get_user_by_token))
+        .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler)) // 
         .route("/github/user/:username", get(github_get_user_profile_handler))   // NEW
         .route("/github/repo/issues", get(github_get_repo_issues_handler))       // NEW
         .route("/github/repo/prs", get(github_get_repo_prs_handler))             // NEW
