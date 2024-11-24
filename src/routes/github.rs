@@ -392,3 +392,77 @@ pub async fn github_get_query_handler(
         }
     }
 }
+#[derive(Deserialize)]
+pub struct GitHubRateLimitRequestBody {
+    token: String,
+    username: String,
+}
+pub async fn github_get_user_rate_limit_handler(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<GitHubRateLimitRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token;
+    let username = payload.username;
+
+    if token.is_empty() {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    match GitHubApi::rate_limit(&token).await {
+        Ok(query_result) => {
+            let json_query_result = json!(&query_result);
+ 
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_query_result.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}
+#[derive(Deserialize)]
+pub struct GitHubUserTokenRequestBody {
+    token: String
+}
+pub async fn github_get_user_by_token(
+    Extension(state): Extension<Arc<AppState>>,
+    Json(payload): Json<GitHubUserTokenRequestBody>,
+) -> impl IntoResponse {
+    let token = payload.token;
+
+    if token.is_empty() {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+
+    match GitHubApi::get_user_by_token(&token).await {
+        Ok(query_result) => {
+            let json_query_result = json!(&query_result);
+ 
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_query_result.to_string()))
+                .unwrap()
+        }
+        Err(e) => {
+            let error_message = format!("Error: {:?}", e);
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(error_message))
+                .unwrap()
+        }
+    }
+}

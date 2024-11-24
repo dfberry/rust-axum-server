@@ -1,5 +1,10 @@
 # Change log
 
+##  0.4.4
+
+* /github/user/rate-limit - user's rate limit
+* /github/user/token - get user by token
+
 ## 0.4.3
 
 * `x-source-board-version` from toml
