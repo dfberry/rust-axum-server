@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.3
+
+* `x-source-board-version` from toml
+
 ## 0.4.2
 
 * `x-source-board-version`: 0.4.2 - the /config route has its own version `x-source-board-version-config: 0.4.1`
