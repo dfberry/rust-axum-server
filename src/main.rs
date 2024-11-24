@@ -38,7 +38,7 @@ use routes::github::{
 };
 use github::GitHubApi;
 use routes::root::root_get_handler;
-use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler};
+use routes::user::{db_user_new_handler, db_users_all_handler, db_watch_new_handler, db_watches_all_handler, db_watches_by_user_all_handler};
 use routes::admin::handler_get_config;
 use state::{AppState, Config};
 //--------------------------------------------------
@@ -83,6 +83,7 @@ async fn main() {
     // build our application with a route
     let app = Router::new()
         .route("/", get(root_get_handler))
+
         .route("/github/user/token", get(github_get_user_by_token))
         .route("/github/user/rate-limit", get(github_get_user_rate_limit_handler)) // 
         .route("/github/user/:username", get(github_get_user_profile_handler))   // NEW
@@ -96,7 +97,8 @@ async fn main() {
         .route("/user", post(db_user_new_handler))
         .route("/users", get(db_users_all_handler))
         .route("/user/:username/watch", post(db_watch_new_handler))
-        .route("/user/:username/watches", get(db_watches_all_handler))
+        .route("/user/:username/watches", get(db_watches_all_handler)) // TO BE RETIRED
+        .route("/user/:db_github_user_id/watches/list", get(db_watches_by_user_all_handler)) // REPLACED WITH THIS
         .route("/config", get(handler_get_config))
         .layer(Extension(shared_state.clone()))
         .layer(

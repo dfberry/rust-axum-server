@@ -1,0 +1,9 @@
+GET http://localhost:4000/user/6416928e-dcff-410d-ac67-b15066bcbe6e/watches/list HTTP/1.1
+content-type: application/json
+
+{
+    "token": "{{$dotenv %PAT}}",
+    "username": "dfberry",
+    "page": 1,
+    "limit": 10
+}

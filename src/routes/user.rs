@@ -5,7 +5,7 @@ use axum::{
     }, 
     http::StatusCode,
     body::Body,
-    extract::{Path, Json, Extension},
+    extract::{Path, Json, Extension, Query},
 };
 use std::sync::Arc;
 use crate::state::AppState;
@@ -16,7 +16,9 @@ use crate::database::user::{
 };
 use crate::database::watch::{
     create_watch,
-    list_watches
+    list_watches,
+    list_watches_by_user,
+    PagedResult
 };
 
 use serde::Deserialize;
@@ -118,5 +120,47 @@ pub async fn db_watches_all_handler(
         .header(http::header::CONTENT_TYPE, "application/json")
         .status(StatusCode::OK)
         .body(Body::from(json_watches.to_string()))
+        .unwrap()
+}
+
+
+
+
+#[derive(Deserialize)]
+pub struct PaginationParams {
+    page: Option<i64>,
+    page_size: Option<i64>,
+}
+
+pub async fn db_watches_by_user_all_handler(
+    Path(github_user_id): Path<String>,
+    Query(pagination): Query<PaginationParams>,
+    Extension(_): Extension<Arc<AppState>>,
+) -> impl IntoResponse {
+
+    if github_user_id.is_empty() {
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::empty())
+            .unwrap();
+    }
+    println!("github_user_id: {}", github_user_id);
+
+    let mut connection = establish_connection();
+
+    let page = pagination.page.unwrap_or(1);
+    let page_size = pagination.page_size.unwrap_or(50);
+
+    let PagedResult { items: watches, has_more } = list_watches_by_user(&mut connection, &github_user_id, page, page_size).await;
+
+    let json_response = json!({
+        "watches": watches,
+        "has_more": has_more,
+    });
+
+    Response::builder()
+        .header(http::header::CONTENT_TYPE, "application/json")
+        .status(StatusCode::OK)
+        .body(Body::from(json_response.to_string()))
         .unwrap()
 }
