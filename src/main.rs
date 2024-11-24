@@ -14,6 +14,7 @@ use axum::{
     response::{IntoResponse, Response},
     middleware::{self, Next},
 };
+use http_serde_ext::header_value;
 use hyper::header::HeaderValue;
 use http_body_util::BodyExt;
 use std::env;
@@ -119,9 +120,10 @@ async fn response_version_header(
     next: Next
 ) -> Response {
     let mut response = next.run(request).await;
+    let version = get_cargo_version().await.unwrap();
 
     // do something with `response`...
-    response.headers_mut().insert("x-source-board-version", HeaderValue::from_static("1.0.0"));
+    response.headers_mut().insert("x-source-board-version", HeaderValue::from_str(&version).unwrap());
 
     response
 }
