@@ -1,6 +1,6 @@
 [package]
 name = "source-board-server"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 publish = false
 
@@ -12,7 +12,9 @@ chrono = "0.4.38"
 diesel = { version = "2.2.3", features = ["postgres", "chrono"] }
 futures = "0.3.30"
 http = "1.1.0"
+http-body-util = "0.1.0"
 http-serde-ext = "1.0.2"
+hyper = "1.0.0"
 octocrab = "0.41.0"
 pq-sys = "0.6.1"
 reqwest = { version = "0.12", features = ["json"] }
@@ -23,6 +25,7 @@ tokio = { version = "1.39.3", features = ["full"] }
 toml = "0.8.19"
 tower = "0.5.0"
 tower-http = { version = "0.6.1", features = ["cors"] }
+tracing = "0.1"
 tracing-subscriber = "0.3"
 url = "2.5.2"
 urlencoding = "2.1.3"
