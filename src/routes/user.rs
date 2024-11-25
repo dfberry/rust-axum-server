@@ -151,11 +151,11 @@ pub async fn db_watches_by_user_all_handler(
     let page = pagination.page.unwrap_or(1);
     let page_size = pagination.page_size.unwrap_or(50);
 
-    let PagedResult { items: watches, has_more } = list_watches_by_user(&mut connection, &github_user_id, page, page_size).await;
+    let PagedResult { items: watches, request_params } = list_watches_by_user(&mut connection, &github_user_id, page, page_size).await;
 
     let json_response = json!({
         "watches": watches,
-        "has_more": has_more,
+        "request_params": request_params,
     });
 
     Response::builder()

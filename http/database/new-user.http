@@ -1,0 +1,6 @@
+POST {{$dotenv %BASE_URL}}/user HTTP/1.1
+content-type: application/json
+
+{
+    "github_user": "diberry"
+}

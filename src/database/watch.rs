@@ -1,5 +1,6 @@
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
+use http::request;
 use crate::schema::watches;
 use serde::{Serialize, Deserialize};
 
@@ -55,9 +56,15 @@ pub async fn create_watch(connection: &mut PgConnection, github_user_id: &str, o
         .get_result(connection)
         .expect("Error saving new watch")
 }
+#[derive(Debug, Serialize, Deserialize)]
+pub struct UserWatchRequest {
+    page: i64,
+    page_size: i64,
+    pub has_more: bool,
+}   
 pub struct PagedResult<T> {
     pub items: Vec<T>,
-    pub has_more: bool,
+    pub request_params: UserWatchRequest,   
 }
 
 pub async fn list_watches_by_user(
@@ -72,6 +79,7 @@ pub async fn list_watches_by_user(
 
     let offset = (page - 1) * page_size;
     let limit = page_size + 1; // Fetch one more item to check if there are more pages
+
 
     let results: Vec<Watch> = watches
         .filter(github_user_id.eq(db_github_user_id))
@@ -88,7 +96,14 @@ pub async fn list_watches_by_user(
         results
     };
 
+    let page_request_params = UserWatchRequest {
+        page,
+        page_size,
+        has_more
+    };
+
+
     println!("Displaying {} watches", items.len());
 
-    PagedResult { items, has_more }
+    PagedResult { items, request_params: page_request_params }
 }

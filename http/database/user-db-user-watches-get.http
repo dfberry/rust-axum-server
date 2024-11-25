@@ -1,0 +1,9 @@
+GET {{$dotenv %BASE_URL}}/user/{{$dotenv %DB_GITHUB_USER_ID}}/watches/list HTTP/1.1
+content-type: application/json
+
+{
+    "token": "{{$dotenv %PAT}}",
+    "username": "dfberry",
+    "page": 1,
+    "limit": 10
+}
