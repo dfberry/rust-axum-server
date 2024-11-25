@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.6
+
+* fix paging for user watches list
+
 ## 0.4.5
 
 * .route("/user/:db_github_user_id/watches/list", get(db_watches_by_user_all_handler))
