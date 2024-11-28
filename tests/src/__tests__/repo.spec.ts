@@ -34,6 +34,33 @@ describe('API Config', () => {
       // Optionally, check the response body
       // expect(responseBody).toHaveProperty('someExpectedProperty'); // Adjust based on your API response
     });
+    it('should get API /github/repo without token, use default token', async () => {
+      try {
+        const responseWithoutBodyToken = await fetch(`${BASE_URL}${route}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'accept': 'application/json',
+          },
+          body: JSON.stringify({
+            "org_or_user": "dfberry",
+            "repo_name": "azure-notes"
+          }),
+        });
+
+        expect(responseWithoutBodyToken.ok).toBe(true);
+        const responseBody = await responseWithoutBodyToken.json();
+  
+        // Check the response status
+        expect(responseWithoutBodyToken.status).toBe(200);
+  
+        // Check the response headers
+        expect(responseWithoutBodyToken.headers.get('x-source-board-version')).toBeDefined();
+  
+      } catch (err) {
+        console.error(err);
+      }
+    });
   });
 
   describe('failure', () => {
@@ -102,26 +129,6 @@ describe('API Config', () => {
         console.error(err);
       }
     });
-    it('should get API /github/repo 422 without token param', async () => {
-      try {
-        const response = await fetch(`${BASE_URL}${route}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'accept': 'application/json',
-          },
-          body: JSON.stringify({
-            "org_or_user": "dfberry",
-            "repo_name": "azure-notes"
-          }),
-        });
 
-        expect(response.ok).toBe(false);
-
-        expect(response.status).toBe(422);
-      } catch (err) {
-        console.error(err);
-      }
-    });
   });
 });

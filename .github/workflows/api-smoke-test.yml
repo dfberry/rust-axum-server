@@ -5,7 +5,7 @@ on:
   # Automatically trigger it when detected changes in repo. Remove comments to enable
   push:
    branches: 
-     [ main ]
+     [ "main", "diberry/1128-github-actions" ]
 
 permissions:
   id-token: write
@@ -23,7 +23,7 @@ jobs:
       #   token: ${{ secrets.GITHUB_TOKEN }} # Used in test to mock user's token
 
     - name: Set up Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '20' # Specify the Node.js version you need
 
