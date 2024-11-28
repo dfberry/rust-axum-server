@@ -43,7 +43,7 @@ pub async fn github_post_repo_handler(
             .unwrap();
     }
 
-    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+    if org_or_owner.is_empty() || repo_name.is_empty() {
         return Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())
@@ -89,7 +89,7 @@ pub async fn github_post_query_issue_handler(
 
     let query = payload.query; // "tokei is:pr";
 
-    if (query.is_empty()) {
+    if query.is_empty() {
         return Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())
@@ -225,12 +225,6 @@ pub async fn github_get_user_profile_handler(
     }
 }
 
-#[derive(Deserialize)]
-pub struct RepoIssuesRequestBody {
-    token: Option<String>,
-    org_or_user: String,
-    repo_name: String,
-}
 pub async fn github_get_repo_issues_handler(
     Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<RepoRequestBody>,
@@ -254,7 +248,7 @@ pub async fn github_get_repo_issues_handler(
             .unwrap();
     }
 
-    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+    if org_or_owner.is_empty() || repo_name.is_empty() {
 
         println!("github_post_repo_handler::Org or repo name is empty");
 
@@ -316,7 +310,7 @@ pub async fn github_get_repo_prs_handler(
             .unwrap();
     }
 
-    if (org_or_owner.is_empty() || repo_name.is_empty()) {
+    if org_or_owner.is_empty() || repo_name.is_empty() {
 
         println!("github_post_repo_handler::Org or repo name is empty");
 
@@ -366,7 +360,7 @@ pub async fn github_get_query_handler(
     };
     let query = payload.query; // "tokei is:pr";
 
-    if (query.is_empty()) {
+    if query.is_empty() {
         return Response::builder()
             .status(StatusCode::BAD_REQUEST)
             .body(Body::empty())
@@ -395,14 +389,14 @@ pub async fn github_get_query_handler(
 #[derive(Deserialize)]
 pub struct GitHubRateLimitRequestBody {
     token: String,
-    username: String,
+    //username: String,
 }
 pub async fn github_get_user_rate_limit_handler(
-    Extension(state): Extension<Arc<AppState>>,
+    //Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<GitHubRateLimitRequestBody>,
 ) -> impl IntoResponse {
     let token = payload.token;
-    let username = payload.username;
+    //let username = payload.username;
 
     if token.is_empty() {
         return Response::builder()
@@ -435,7 +429,7 @@ pub struct GitHubUserTokenRequestBody {
     token: String
 }
 pub async fn github_get_user_by_token(
-    Extension(state): Extension<Arc<AppState>>,
+    //Extension(state): Extension<Arc<AppState>>,
     Json(payload): Json<GitHubUserTokenRequestBody>,
 ) -> impl IntoResponse {
     let token = payload.token;

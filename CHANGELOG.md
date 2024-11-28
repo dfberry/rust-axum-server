@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.7
+
+* fix paging for users and watches
+
 ## 0.4.6
 
 * fix paging for user watches list

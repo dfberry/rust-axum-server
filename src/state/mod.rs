@@ -22,13 +22,13 @@ pub struct Package {
 #[derive(Deserialize, Debug)]
 pub struct EnvFile {
     pub pat: String,
-    pub github_client_id: String,
-    pub github_password: String,
+    //pub github_client_id: String,
+    //pub github_password: String,
     pub github_redirect_uri: String,
-    pub github_scope: String,
+    //pub github_scope: String,
     pub port: String,
-    pub environment: String,
-    pub database_url: String,
+    //pub environment: String,
+    //pub database_url: String,
 }
 
 
@@ -48,22 +48,22 @@ impl Config {
 
         // Environment variables
         let pat = env::var("PAT")?;
-        let github_client_id = env::var("GITHUB_CLIENT_ID")?;
-        let github_password = env::var("GITHUB_PASSWORD")?;
+        //let github_client_id = env::var("GITHUB_CLIENT_ID")?;
+        //let github_password = env::var("GITHUB_PASSWORD")?;
         let github_redirect_uri = env::var("GITHUB_REDIR_URL")?;
         let port = env::var("PORT").unwrap_or_else(|_| "4000".to_string());
-        let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
-        let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
+        //let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
+        //let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
 
         let env_file = EnvFile {
             pat,
-            github_client_id,
-            github_password,
+            //github_client_id,
+            //github_password,
             github_redirect_uri,
-            github_scope: "user".to_string(),
+            //github_scope: "user".to_string(),
             port,
-            environment: environment.clone(),
-            database_url,
+            //environment: environment.clone(),
+            //database_url,
         };
 
         // Print out the env_file

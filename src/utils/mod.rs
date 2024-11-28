@@ -1,6 +1,6 @@
 use chrono::DateTime;
 use chrono::Utc;
-use anyhow::{Result, Context, anyhow};
+use anyhow::{Result, anyhow};
 
 pub fn option_datetime_to_string(date: Option<DateTime<Utc>>) -> String {
     date.map(|d| d.to_string())
