@@ -12,7 +12,7 @@ on:
   schedule:
     - cron: '18 18 * * 0'
   push:
-    branches: [ "main", "diberry/1128-ossf-action-update" ]
+    branches: [ "main" ]
 
 # Declare default permissions as read only.
 permissions: read-all
