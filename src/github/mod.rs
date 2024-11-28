@@ -10,9 +10,8 @@ use octocrab::models::repos::RepoCommit;
 use http::Uri;
 use serde::{Serialize, Deserialize};
 use std::option::Option; 
-use std::collections::HashMap;
 use futures::future::join_all;
-use anyhow::{Result, Context, anyhow};
+use anyhow::Result;
 use chrono::DateTime;
 use chrono::Utc;
 use crate::utils::{option_datetime_to_string, parse_repo_string};
@@ -42,7 +41,7 @@ pub struct PageDef<T>{
 
 #[derive(Debug)]
 pub struct GitHub {
-    pub name: String,
+    //pub name: String,
 }
 
 // Conversion function
@@ -259,13 +258,13 @@ pub async fn fetch_all_repos_stats(token: &str, repos: Vec<String>) -> Vec<RepoS
     results
 }
 
-pub async fn fetch_community_metrics(octocrab: &Octocrab, repo: &str) -> Result<RepositoryMetrics> {
+// pub async fn fetch_community_metrics(octocrab: &Octocrab, repo: &str) -> Result<RepositoryMetrics> {
     
-    println!("COMMUNITY_METRICS: Repo: {}", repo);
+//     println!("COMMUNITY_METRICS: Repo: {}", repo);
 
-    let metrics = octocrab.repos("dfberry", repo).get_community_profile_metrics().await?;
-    Ok(metrics)
-}
+//     let metrics = octocrab.repos("dfberry", repo).get_community_profile_metrics().await?;
+//     Ok(metrics)
+// }
 
 fn get_commit_date(commit: &RepoCommit) -> String {
 
@@ -334,7 +333,7 @@ pub struct Rate {
 
 #[derive(Debug)]
 pub struct GitHubApi {
-    pub name: String,
+    //pub name: String,
 }
 
 impl GitHubApi{
