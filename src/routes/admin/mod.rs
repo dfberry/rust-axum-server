@@ -2,15 +2,54 @@ use std::sync::Arc;
 use crate::state::AppState;
 use axum::{
     extract::Extension,
-    response::IntoResponse,
+    extract::Query,
+    response::{IntoResponse, Response},
     http::header::HeaderMap,
+    http::StatusCode,
     Json,
 };
+use serde::Deserialize;
 use serde_json::json;
 use std::env;
 use chrono::Utc;
 
-pub async fn handler_get_config(Extension(state): Extension<Arc<AppState>>) -> impl IntoResponse {
+#[derive(Deserialize)]
+pub struct AdminQuery {
+    pub admin_key: Option<String>,
+}
+
+pub async fn handler_get_config(
+    Query(params): Query<AdminQuery>,
+    Extension(state): Extension<Arc<AppState>>
+) -> impl IntoResponse {
+
+    let admin_key = match params.admin_key {
+        Some(key) => {
+            println!("Received admin_key: {}", key);
+            key
+        }
+        None => {
+            println!("Missing admin_key");
+            return Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body("Missing key".into())
+                .unwrap();
+        }
+    };
+    println!("Query string admin key: {}", admin_key);
+
+    // Get the ADMIN_KEY from the environment variables
+    let env_admin_key = env::var("ADMIN_KEY").unwrap_or_default();
+    println!("Environment variable admin key: {}", env_admin_key);
+
+    // Check if the provided ADMIN_KEY matches the environment variable
+    if admin_key.to_lowercase() != env_admin_key.to_lowercase() {
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .body("Invalid key".into())
+            .unwrap();
+    }
+
     // Collect environment variables
     let env_vars = env::vars()
         .map(|(key, value)| json!({ "key": key, "value": value }))

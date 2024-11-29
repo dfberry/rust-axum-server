@@ -5,7 +5,7 @@ const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
 const route = '/github/repo';
 const PAT_READ_ONLY = process.env['PAT_READ_ONLY'] || '';
 
-describe('API Config', () => {
+describe('API Repo', () => {
   describe('success', () => {
 
     it('should get API /github/repo 200', async () => {
@@ -23,7 +23,6 @@ describe('API Config', () => {
         }),
       });
       expect(responseWithBody.ok).toBe(true);
-      const responseBody = await responseWithBody.json();
 
       // Check the response status
       expect(responseWithBody.status).toBe(200);
@@ -49,7 +48,6 @@ describe('API Config', () => {
         });
 
         expect(responseWithoutBodyToken.ok).toBe(true);
-        const responseBody = await responseWithoutBodyToken.json();
   
         // Check the response status
         expect(responseWithoutBodyToken.status).toBe(200);
