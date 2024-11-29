@@ -5,7 +5,7 @@ use axum::{
     }, 
     http::StatusCode,
     body::Body,
-    extract::{Path, Json, Extension},
+    extract::{Path, Json, Extension, Query},
 };
 use std::sync::Arc;
 use crate::state::AppState;
@@ -73,12 +73,12 @@ pub async fn get_db_user_get_handler(
 
 pub async fn get_db_users_all_paginated_handler(
     Extension(_): Extension<Arc<AppState>>,
-    Json(payload): Json<PaginationParams>,
+    Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
     let mut connection = establish_connection();
 
-    let page = payload.page.unwrap_or(1);
-    let page_size = payload.page_size.unwrap_or(50);
+    let page = params.page.unwrap_or(1);
+    let page_size = params.page_size.unwrap_or(50);
 
     let PagedResult { items: users, request_params } = list_users(&mut connection, page, page_size).await;
 

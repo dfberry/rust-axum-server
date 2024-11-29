@@ -5,7 +5,7 @@ use axum::{
     }, 
     http::StatusCode,
     body::Body,
-    extract::{Path, Json, Extension},
+    extract::{Path, Json, Extension, Query},
 };
 use std::sync::Arc;
 use crate::state::AppState;
@@ -65,11 +65,11 @@ pub async fn post_db_watch_new_handler(
 
 pub async fn get_db_watches_all_paginated_handler(
     Extension(_): Extension<Arc<AppState>>,
-    Json(payload): Json<PaginationParams>
+    Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
     let mut connection = establish_connection();
-    let page = payload.page.unwrap_or(1);
-    let page_size = payload.page_size.unwrap_or(50);
+    let page = params.page.unwrap_or(1);
+    let page_size = params.page_size.unwrap_or(50);
 
     let PagedResult { items: watches, request_params } = list_watches(&mut connection, page, page_size).await;
 
@@ -88,7 +88,7 @@ pub async fn get_db_watches_all_paginated_handler(
 pub async fn get_db_watches_by_user_all_paginated_handler(
     Extension(_): Extension<Arc<AppState>>,
     Path(github_user_id): Path<String>,
-    Json(payload): Json<PaginationParams>,
+    Query(params): Query<PaginationParams>,
 ) -> impl IntoResponse {
 
     if github_user_id.is_empty() {
@@ -101,8 +101,8 @@ pub async fn get_db_watches_by_user_all_paginated_handler(
 
     let mut connection = establish_connection();
 
-    let page = payload.page.unwrap_or(1);
-    let page_size = payload.page_size.unwrap_or(50);
+    let page = params.page.unwrap_or(1);
+    let page_size = params.page_size.unwrap_or(50);
 
     let PagedResult { items: watches, request_params } = list_watches_by_user(&mut connection, &github_user_id, page, page_size).await;
 

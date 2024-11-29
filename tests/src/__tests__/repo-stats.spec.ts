@@ -1,11 +1,10 @@
-import superagent from 'superagent';
 import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 
 const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
 const route = '/github/repos/stats';
 
-describe('API Config', () => {
+describe('API Repo Stat', () => {
   describe('success', () => {
     it('should get API repos/stats 200', async () => {
 
@@ -21,16 +20,12 @@ describe('API Config', () => {
       });
 
       expect(responseWithBody.ok).toBe(true);
-      const responseBody = await responseWithBody.json();
 
       // Check the response status
       expect(responseWithBody.status).toBe(200);
 
       // Check the response headers
       expect(responseWithBody.headers.get('x-source-board-version')).toBeDefined();
-
-      // Optionally, check the response body
-      // expect(responseBody).toHaveProperty('someExpectedProperty'); // Adjust based on your API response
     });
 
   });

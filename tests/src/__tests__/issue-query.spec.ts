@@ -6,7 +6,7 @@ const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
 const route = '/github/query/issue';
 const PAT_READ_ONLY = process.env['PAT_READ_ONLY'] || '';
 
-describe('API Config', () => {
+describe('API Issue Query', () => {
     describe('success', () => {
         it('should get API 200 ' + route, async () => {
 
@@ -25,7 +25,6 @@ describe('API Config', () => {
             });
 
             expect(responseWithBody.ok).toBe(true);
-            const responseBody = await responseWithBody.json();
 
             // Check the response status
             expect(responseWithBody.status).toBe(statusCode);
@@ -33,9 +32,7 @@ describe('API Config', () => {
             // Check the response headers
             expect(responseWithBody.headers.get('x-source-board-version')).toBeDefined();
 
-            // Optionally, check the response body
-            // expect(responseBody).toHaveProperty('someExpectedProperty'); // Adjust based on your API response
-        });
+         });
     });
 
     describe('failure', () => {
@@ -57,6 +54,7 @@ describe('API Config', () => {
 
                 expect(response.ok).toBe(false);
                 expect(response.status).toBe(statusCode);
+                
         });
 
         it('should get API 400 missing post body ' + route, async () => {

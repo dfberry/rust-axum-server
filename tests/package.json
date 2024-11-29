@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "test": "jest",
+        "test": "npm run clean && npm run build && jest",
         "build": "tsc",
         "clean": "rm -rf dist && rm -rf coverage"
     },
@@ -11,21 +11,17 @@
     "license": "ISC",
     "description": "",
     "devDependencies": {
+        "@tsconfig/strictest": "^2.0.5",
         "@types/jest": "^29.5.12",
         "@types/node": "^22.5.1",
-        "@types/supertest": "^6.0.2",
+        "@types/node-fetch": "^2.6.11",
         "jest": "^29.7.0",
-        "ts-jest": "^29.2.5",
         "typescript": "^5.5.4"
     },
     "dependencies": {
-        "@tsconfig/strictest": "^2.0.5",
-        "@types/node-fetch": "^2.6.11",
-        "@types/superagent": "^8.1.9",
         "cross-env": "^7.0.3",
         "dotenv": "^16.4.5",
-        "got": "^14.4.2",
         "node-fetch": "^2.7.0",
-        "superagent": "^10.1.0"
+        "ts-jest": "^29.2.5"
     }
 }
