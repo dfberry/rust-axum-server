@@ -65,7 +65,7 @@ async function requestSuccessfulRoute(route: string, name: string) {
 }
 
 describe('API User', () => {
-    describe.only('success /users', () => {
+    describe('success /users', () => {
         it('should get API users JSON', async () => {
             await requestSuccessfulRoute('/users', 'users');
         });

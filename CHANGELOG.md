@@ -1,5 +1,9 @@
 # Change log
 
+## 0.4.9
+
+* fix smoketest - remove .only
+
 ## 0.4.8
 
 * paging from body to querystring
