@@ -8,7 +8,7 @@ use axum::{
     extract::Request,
     middleware::{self, Next},
     response::Response,
-    routing::{get, post},
+    routing::{get, post, delete},
     Router,
 };
 use axum::Extension;
@@ -45,7 +45,9 @@ use routes::user::{
 use routes::user_watch::{
     post_db_watch_new_handler,  
     get_db_watches_by_user_all_paginated_handler,
-    get_db_watches_all_paginated_handler
+    get_db_watches_all_paginated_handler,
+    delete_user_watch_handler,
+    get_user_watch_handler
 };
 use state::{AppState, Config};
 //--------------------------------------------------
@@ -95,12 +97,17 @@ async fn main() {
         .route("/github/user/rate-limit",get(github_get_user_rate_limit_handler)) 
         .route("/github/user/:username",get(github_get_user_profile_handler))
         .route("/github/user", post(github_get_user_handler))
-        .route("/users", get(get_db_users_all_paginated_handler))
+
         .route("/users/watches", get(get_db_watches_all_paginated_handler))
-        .route("/user", post(post_db_user_new_handler))
+        .route("/users", get(get_db_users_all_paginated_handler))
+
         .route("/user/:username/watches", get(get_db_watches_by_user_all_paginated_handler))
+        .route("/user/:username/watch/:watch_id", get(get_user_watch_handler))
+        .route("/user/:username/watch/:watch_id", delete(delete_user_watch_handler))
         .route("/user/:username/watch", post(post_db_watch_new_handler))
         .route("/user/:username", get(get_db_user_get_handler))
+        .route("/user", post(post_db_user_new_handler))
+
         .route("/config", get(handler_get_config))
         .layer(Extension(shared_state.clone()))
         .layer(
