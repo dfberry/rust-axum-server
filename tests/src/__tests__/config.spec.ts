@@ -8,15 +8,21 @@ describe('API Config', () => {
   describe('success', () => {
     it('should get API config JSON', async () => {
 
-      const response = await fetch(`${BASE_URL}${route}?admin_key=${process.env['ADMIN_KEY']}`, {
+      expect(process.env['ADMIN_KEY']).not.toBeUndefined();
+      expect(process.env['ADMIN_KEY']?.length).toBeGreaterThan(3);
+
+      const url = `${BASE_URL}${route}?admin_key=${process.env['ADMIN_KEY']}`;
+      console.log('url:', url);
+
+      const response = await fetch(url, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
           'accept': 'application/json'
         }
       });
-      expect(response.ok).toBe(true);
       expect(response.status).toBe(200);
+      expect(response.ok).toBe(true);
 
       // Check the response headers
       expect(response.headers.get('x-source-board-version')).toBeDefined();
