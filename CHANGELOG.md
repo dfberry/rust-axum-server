@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.0
+
+* feature - add, get, delete user config
+
 ## 0.4.9
 
 * fix smoketest - remove .only
