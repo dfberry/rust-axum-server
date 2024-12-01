@@ -29,6 +29,7 @@ pub struct EnvFile {
     pub port: String,
     //pub environment: String,
     //pub database_url: String,
+    pub admin_key: String,
 }
 
 
@@ -54,6 +55,7 @@ impl Config {
         let port = env::var("PORT").unwrap_or_else(|_| "4000".to_string());
         //let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
         //let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
+        let admin_key = env::var("ADMIN_KEY").unwrap_or_else(|_| "".to_string());
 
         let env_file = EnvFile {
             pat,
@@ -64,6 +66,7 @@ impl Config {
             port,
             //environment: environment.clone(),
             //database_url,
+            admin_key,
         };
 
         // Print out the env_file
