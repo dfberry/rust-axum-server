@@ -23,7 +23,7 @@ pub async fn handler_get_config(
     Extension(state): Extension<Arc<AppState>>
 ) -> impl IntoResponse {
 
-    let admin_key = match params.admin_key {
+    let query_string_admin_key = match params.admin_key {
         Some(key) => {
             println!("Received admin_key: {}", key);
             key
@@ -36,17 +36,18 @@ pub async fn handler_get_config(
                 .unwrap();
         }
     };
-    println!("Query string admin key: {}", admin_key);
+    println!("Query string admin key: {}", query_string_admin_key);
 
     // Get the ADMIN_KEY from the environment variables
     let env_admin_key = env::var("ADMIN_KEY").unwrap_or_default();
     println!("Environment variable admin key: {}", env_admin_key);
 
     // Check if the provided ADMIN_KEY matches the environment variable
-    if admin_key.to_lowercase() != env_admin_key.to_lowercase() {
+    if query_string_admin_key.to_lowercase() != env_admin_key.to_lowercase() {
+        let error_message = format!("Invalid value: {}", query_string_admin_key);
         return Response::builder()
             .status(StatusCode::UNAUTHORIZED)
-            .body("Invalid key".into())
+            .body(error_message.into())
             .unwrap();
     }
 

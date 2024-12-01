@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.1
+
+* fix - /config admin_key smoke test fails, local smoke test succeeds
+
 ## 0.5.0
 
 * feature - add, get, delete user config
