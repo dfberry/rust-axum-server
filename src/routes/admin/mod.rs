@@ -23,6 +23,17 @@ pub async fn handler_get_config(
     Extension(state): Extension<Arc<AppState>>
 ) -> impl IntoResponse {
 
+    let config = state.config.read().unwrap();
+    let env_admin_key = &config.env_file.admin_key;
+
+    // if state.admin_key is empty, return 500
+    if env_admin_key.is_empty() {
+        return Response::builder()
+            .status(StatusCode::INTERNAL_SERVER_ERROR)
+            .body("Environment admin key not set".into())
+            .unwrap();
+    }
+
     let query_string_admin_key = match params.admin_key {
         Some(key) => {
             println!("Received admin_key: {}", key);
@@ -36,15 +47,19 @@ pub async fn handler_get_config(
                 .unwrap();
         }
     };
-    println!("Query string admin key: {}", query_string_admin_key);
 
-    // Get the ADMIN_KEY from the environment variables
-    let env_admin_key = env::var("ADMIN_KEY").unwrap_or_default();
-    println!("Environment variable admin key: {}", env_admin_key);
+    // Check if the provided ADMIN_KEY matches the environment variable
+    if query_string_admin_key.len() != env_admin_key.len() {
+        let error_message = format!("Key lengths don't match: {}", query_string_admin_key.len());
+        return Response::builder()
+            .status(StatusCode::UNAUTHORIZED)
+            .body(error_message.into())
+            .unwrap();
+    }
 
     // Check if the provided ADMIN_KEY matches the environment variable
     if query_string_admin_key.to_lowercase() != env_admin_key.to_lowercase() {
-        let error_message = format!("Invalid value: {}", query_string_admin_key);
+        let error_message = format!("Key value don't match");
         return Response::builder()
             .status(StatusCode::UNAUTHORIZED)
             .body(error_message.into())
