@@ -49,6 +49,17 @@ use routes::user_watch::{
     delete_user_watch_handler,
     get_user_watch_handler
 };
+use routes::{
+    user_auth_token::{
+        github_get_user_token_handler,
+        github_post_user_token_handler,
+        github_delete_user_token_handler},
+    user_auth_session::{
+        github_get_user_session_handler,
+        github_post_user_session_handler,
+        github_delete_user_session_handler},
+};
+
 use state::{AppState, Config};
 //--------------------------------------------------
 // main
@@ -106,6 +117,16 @@ async fn main() {
         .route("/user/:username/watch/:watch_id", delete(delete_user_watch_handler))
         .route("/user/:username/watch", post(post_db_watch_new_handler))
         .route("/user/:username", get(get_db_user_get_handler))
+
+        .route("/user/auth/token", post(github_get_user_token_handler))
+        .route("/user/auth/token", get(github_get_user_token_handler))
+        .route("/user/auth/token", delete(github_get_user_token_handler))
+
+        .route("/user/auth/session", post(github_get_user_session_handler))
+        .route("/user/auth/session", get(github_get_user_session_handler))
+        .route("/user/auth/session", delete(github_get_user_session_handler))
+
+
         .route("/user", post(post_db_user_new_handler))
 
         .route("/config", get(handler_get_config))
