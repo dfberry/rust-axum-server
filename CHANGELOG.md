@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.4
+
+* fix - /generate/uniqueid as JSON
+
 ## 0.5.3
 
 * feature - /generate/uniqueid
