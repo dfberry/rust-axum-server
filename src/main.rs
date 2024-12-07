@@ -42,6 +42,7 @@ use routes::user::{
     get_db_users_all_paginated_handler,
     get_db_user_get_handler
 };
+use routes::generate::handler_generate_unique_id;
 use routes::user_watch::{
     post_db_watch_new_handler,  
     get_db_watches_by_user_all_paginated_handler,
@@ -109,6 +110,7 @@ async fn main() {
         .route("/user", post(post_db_user_new_handler))
 
         .route("/config", get(handler_get_config))
+        .route("/generate/uniqueid", post(handler_generate_unique_id))
         .layer(Extension(shared_state.clone()))
         .layer(
             ServiceBuilder::new()

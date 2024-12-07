@@ -14,7 +14,7 @@ use futures::future::join_all;
 use anyhow::Result;
 use chrono::DateTime;
 use chrono::Utc;
-use crate::utils::{option_datetime_to_string, parse_repo_string};
+use crate::utils::conversion::{option_datetime_to_string, parse_repo_string};
 use reqwest::Client;
 use std::error::Error;
 
