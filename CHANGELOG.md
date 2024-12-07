@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.3
+
+* feature - /generate/uniqueid
+
 ## 0.5.2
 
 * fix - /config admin_key comparisons
