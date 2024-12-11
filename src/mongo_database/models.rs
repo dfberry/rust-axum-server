@@ -1,8 +1,8 @@
-use serde_json::json;
 use serde::{Serialize, Deserialize};
-
 #[derive(Deserialize, Serialize, Debug)]
 pub struct FlattenedRepoData {
+    org: String,
+    repo: String,
     name: String,
     description: Option<String>,
     url: String,
@@ -14,5 +14,5 @@ pub struct FlattenedRepoData {
     stargazersCount: i32,
     forksCount: i32,
     openIssuesCount: i32,
-    openPRsCount: i32,
+    openPRsCount: i32
 }

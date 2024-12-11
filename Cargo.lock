@@ -2321,6 +2321,7 @@ dependencies = [
  "anyhow",
  "axum",
  "axum-extra",
+ "bson",
  "chrono",
  "diesel",
  "futures",
