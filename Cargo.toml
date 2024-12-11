@@ -6,7 +6,7 @@ publish = false
 
 [dependencies]
 anyhow = "1.0.86" 
-axum = { version = "0.7.5" }
+axum = { version = "0.7.5", features = ["macros"] }
 axum-extra = { version = "0.9.3", features = ["typed-header"] }
 chrono = "0.4.38"
 diesel = { version = "2.2.3", features = ["postgres", "chrono"] }
@@ -15,6 +15,7 @@ http = "1.1.0"
 http-body-util = "0.1.0"
 http-serde-ext = "1.0.2"
 hyper = "1.0.0"
+mongodb = "3.1.0"
 octocrab = "0.41.0"
 pq-sys = "0.6.1"
 rand = "0.8"

@@ -1,12 +1,22 @@
 use std::sync::{Arc, RwLock};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use anyhow::{Result, Context};
 use tokio::fs::File;
 use tokio::io::AsyncReadExt;
-
+use mongodb::{
+    bson::doc,
+    results::{DeleteResult, InsertOneResult, UpdateResult},
+    Client, Collection,
+};
+use crate::mongo_database::models::FlattenedRepoData;
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub config: Arc<RwLock<Config>>,
+}
+
+#[derive(Clone, Debug)]
+pub struct MongoDb {
+    pub collection_client: Collection<FlattenedRepoData>,
 }
 
 use std::env;
@@ -33,10 +43,11 @@ pub struct EnvFile {
 }
 
 
-#[derive(Deserialize, Debug)]
+#[derive(Debug)]
 pub struct Config {
     pub env_file: EnvFile,
     pub package: Package,
+    pub mongo: MongoDb,
 }
 #[derive(Deserialize, Debug)]
 pub struct CargoToml {
@@ -56,7 +67,17 @@ impl Config {
         //let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
         //let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
         let admin_key = env::var("ADMIN_KEY").unwrap_or_else(|_| "".to_string());
-
+        
+        // MongoDB
+        let db_url = env::var("MONGO_DATABASE_URL")?;
+        let db_name = env::var("MONGO_DATABASE_NAME")?;
+        let db_collection=  env::var("MONGO_COLLECTION_NAME")?;
+        let client = Client::with_uri_str(db_url).await.unwrap();
+        let collection: Collection<FlattenedRepoData> = client.database(&db_name).collection(&db_collection);
+        let mongo = MongoDb {
+            collection_client: collection,
+        };
+        
         let env_file = EnvFile {
             pat,
             //github_client_id,
@@ -88,6 +109,7 @@ impl Config {
         Ok(Config {
             env_file,
             package,
+            mongo
         })
     }
 }

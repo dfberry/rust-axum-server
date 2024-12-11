@@ -1,4 +1,4 @@
-POST http://localhost:4000/generate/uniqueid HTTP/1.1
+POST https://dfberrycontainerapp-stage.happysky-cefda93a.eastus2.azurecontainerapps.io/generate/uniqueid HTTP/1.1
 content-type: application/json
 
 {

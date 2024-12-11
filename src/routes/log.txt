@@ -1,0 +1,47 @@
+/* 
+    match read_log(&client, org, repo, begin_date, end_date).await {
+        Ok(results) => {
+            let json_log = json!(results);
+
+            Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
+                .status(StatusCode::OK)
+                .body(Body::from(json_log.to_string()))
+                .unwrap()
+        },
+        Err(e) => {
+            let response = json!({
+                "org": org,
+                "repo": repo,
+                "begin_date": begin_date,
+                "end_date": end_date,
+                "status": "error",
+                "message": format!("Error reading log: {}", e)
+            });
+
+            Response::builder()
+                .status(StatusCode::INTERNAL_SERVER_ERROR)
+                .body(Body::from(response.to_string()))
+                .unwrap()
+        }
+    }*/
+    /* 
+    Response::builder()
+        .status(StatusCode::OK)
+        .body(Body::empty())
+        .unwrap()
+        */
+
+            //     Ok(client) => client,
+    //     Err(e) => {
+    //         let response = json!({
+    //             "status": "error",
+    //             "message": format!("Error connecting to database: {}", e)
+    //         });
+
+    //         return Response::builder()
+    //             .status(StatusCode::INTERNAL_SERVER_ERROR)
+    //             .body(Body::from(response.to_string()))
+    //             .unwrap();
+    //     }
+    // };
