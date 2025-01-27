@@ -8,7 +8,10 @@ use mongodb::{
     results::{DeleteResult, InsertOneResult, UpdateResult},
     Client, Collection,
 };
-use crate::mongo_database::models::FlattenedRepoData;
+use crate::mongo_database::{
+    models::FlattenedRepoData,
+
+};
 #[derive(Clone, Debug)]
 pub struct AppState {
     pub config: Arc<RwLock<Config>>,
@@ -16,7 +19,7 @@ pub struct AppState {
 
 #[derive(Clone, Debug)]
 pub struct MongoDb {
-    pub collection_client: Collection<FlattenedRepoData>,
+    pub collection_client: mongodb::Collection<FlattenedRepoData>
 }
 
 use std::env;

@@ -1,2 +1,2 @@
-pub mod log;
+pub mod crud;
 pub mod models;
