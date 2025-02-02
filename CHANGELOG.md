@@ -1,5 +1,9 @@
 # Change log
 
+# 0.5.9
+
+* Fix syntax error
+
 # 0.5.8
 
 * Feature - check revision state after deployment
