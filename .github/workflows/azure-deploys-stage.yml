@@ -74,6 +74,9 @@ jobs:
     needs: deploy
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
       - name: Azure Login
         uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
