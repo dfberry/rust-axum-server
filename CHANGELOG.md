@@ -1,5 +1,9 @@
 # Change log
 
+# 0.5.8
+
+* Feature - check revision state after deployment
+
 # 0.5.7
 
 * Fix secrets scripts - single command for all env vars instead of 1 for each
