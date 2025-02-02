@@ -12,7 +12,6 @@ describe('API Config', () => {
       expect(process.env['ADMIN_KEY']?.length).toBeGreaterThan(3);
 
       const url = `${BASE_URL}${route}?admin_key=${process.env['ADMIN_KEY']}`;
-      console.log('url:', url);
 
       const response = await fetch(url, {
         method: 'GET',
