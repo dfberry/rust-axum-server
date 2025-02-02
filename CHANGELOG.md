@@ -1,5 +1,9 @@
 # Change log
 
+# 0.5.7
+
+* Fix secrets scripts - single command for all env vars instead of 1 for each
+
 # 0.5.6
 
 * eprintln for config because this is where revision startup fails
