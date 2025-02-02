@@ -2,15 +2,22 @@
 
 DOTENV_PATH="../.env"
 
+RESOURCE_GROUP="unset"
+CONTAINER_APP_NAME="unset"
+
 # Check if the first parameter is empty
 if [ -z "$1" ]; then
-  echo "First parameter is empty, assuming environment is already set."
+  echo "First parameter is empty, assuming environment is already set in GitHub action."
+  RESOURCE_GROUP=$AZURE_GROUP_NAME
+  CONTAINER_APP_NAME=$AZURE_CONTAINER_APP_NAME
 else
   # Load environment variables from .env file into the script's environment
   if [ -f $DOTENV_PATH ]; then
     set -a
     source $DOTENV_PATH
     set +a
+    RESOURCE_GROUP=$AZ_RG
+    CONTAINER_APP_NAME=$AZ_APP_NAME
   else
     echo "Error: .env file not found at $DOTENV_PATH"
     exit 1
@@ -19,8 +26,7 @@ fi
 
 
 # Variables
-RESOURCE_GROUP=$AZ_RG
-CONTAINER_APP_NAME=$AZ_APP_NAME
+
 
 # Get the latest revision name
 LATEST_REVISION=$(az containerapp revision list \
