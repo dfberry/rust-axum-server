@@ -74,6 +74,9 @@ jobs:
     needs: deploy
 
     steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
       - name: Azure Login
         uses: azure/login@a65d910e8af852a8061c627c456678983e180302
         with:
@@ -85,5 +88,5 @@ jobs:
       - name: Validate the deployment
         run: |
           cd scripts
-          chmod +x validate.sh
-          ./validate.sh
+          chmod +x check-revision.sh
+          ./check-revision.sh
