@@ -1,5 +1,9 @@
 # Change log
 
+# 0.5.6
+
+* eprintln for config because this is where revision startup fails
+
 ## 0.5.5
 
 * /log from MongoDB for watched github repos
