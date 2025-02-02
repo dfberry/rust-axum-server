@@ -26,6 +26,8 @@ mod routes;
 mod schema;
 mod state;
 mod utils;
+mod mongo_database;
+
 
 use state::get_cargo_version;
 
@@ -35,6 +37,7 @@ use routes::github::{
     github_get_user_by_token, github_get_user_handler, github_get_user_profile_handler,
     github_get_user_rate_limit_handler, github_post_query_issue_handler, github_post_repo_handler,
     github_post_repo_stats_handler,
+
 };
 use routes::root::root_get_handler;
 use routes::user::{
@@ -50,6 +53,7 @@ use routes::user_watch::{
     delete_user_watch_handler,
     get_user_watch_handler
 };
+use routes::log::get_db_mongo_log_handler;
 use state::{AppState, Config};
 //--------------------------------------------------
 // main
@@ -108,6 +112,8 @@ async fn main() {
         .route("/user/:username/watch", post(post_db_watch_new_handler))
         .route("/user/:username", get(get_db_user_get_handler))
         .route("/user", post(post_db_user_new_handler))
+
+        .route("/log", get(get_db_mongo_log_handler))
 
         .route("/config", get(handler_get_config))
         .route("/generate/uniqueid", post(handler_generate_unique_id))

@@ -4,6 +4,7 @@ use crate::schema::osb_user;
 use diesel::pg::PgConnection;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable)]
 #[diesel(table_name = osb_user)]
 #[diesel(check_for_backend(diesel::pg::Pg))]

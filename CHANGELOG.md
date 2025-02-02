@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.5
+
+* /log from MongoDB for watched github repos
+
 ## 0.5.4
 
 * fix - /generate/uniqueid as JSON

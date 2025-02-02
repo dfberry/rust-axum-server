@@ -15,9 +15,14 @@ use crate::state::AppState;
 */
 
 
-pub async fn root_get_handler(Extension(_): Extension<Arc<AppState>>) -> Html<String> {
+pub async fn root_get_handler(
+    Extension(state): Extension<Arc<AppState>>
+) -> Html<String> {
+
+    let version = state.config.read().unwrap().package.version.clone();
+
         let html_content = format!(
-            "<h1>Source board</h1>"
+            "<h1>Source board</h1> <p>Version: {version}</p>"
         );
 
     Html(html_content)
