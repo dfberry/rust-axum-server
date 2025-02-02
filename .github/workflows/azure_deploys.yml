@@ -84,11 +84,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Wait for 2 minutes
-      run: sleep 120
+      - name: Wait for 2 minutes
+        run: sleep 120
 
-    - name: Validate the deployment
-      run: |
-        cd scripts
-        chmod +x validate.sh
-        ./validate.sh
+      - name: Validate the deployment
+        run: |
+          cd scripts
+          chmod +x validate.sh
+          ./validate.sh
