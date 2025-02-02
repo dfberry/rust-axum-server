@@ -34,19 +34,18 @@ secrets=$(az containerapp secret list \
 
 echo "Secrets: $secrets"
 
-# Delete each secret
+# Variable to hold concatenated secrets for removal
+secrets_to_remove=""
+
+# Build up the list of secrets to remove
 for secret in $secrets; do
-
-  echo "Removing secret $secret"
-
-  if [[ $secret == APP_* ]]; then
-
-    echo "Removing secret $secret"
-
-    az containerapp secret remove \
-      --subscription $AZ_SUB_ID \
-      --name $AZ_APP_NAME \
-      --resource-group $AZ_RG \
-      --secret-names $secret
-  fi
+  echo "Processing secret $secret"
+  secrets_to_remove="$secrets_to_remove $secret"
 done
+
+# Remove the secrets in a single command
+az containerapp secret remove \
+  --subscription $AZ_SUB_ID \
+  --name $AZ_APP_NAME \
+  --resource-group $AZ_RG \
+  --secret-names $secrets_to_remove
