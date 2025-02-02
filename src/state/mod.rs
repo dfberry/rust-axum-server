@@ -63,18 +63,39 @@ impl Config {
 
         // Environment variables
         let pat = env::var("PAT")?;
-        //let github_client_id = env::var("GITHUB_CLIENT_ID")?;
-        //let github_password = env::var("GITHUB_PASSWORD")?;
+        eprintln!("Length of PAT: {}", pat.len());
+    
+        // let github_client_id = env::var("GITHUB_CLIENT_ID")?;
+        // println!("Length of GITHUB_CLIENT_ID: {}", github_client_id.len());
+    
+        // let github_password = env::var("GITHUB_PASSWORD")?;
+        // println!("Length of GITHUB_PASSWORD: {}", github_password.len());
+    
         let github_redirect_uri = env::var("GITHUB_REDIR_URL")?;
+        eprintln!("Length of GITHUB_REDIR_URL: {}", github_redirect_uri.len());
+    
         let port = env::var("PORT").unwrap_or_else(|_| "4000".to_string());
-        //let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
-        //let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
+        eprintln!("Length of PORT: {}", port.len());
+    
+        // let environment = env::var("ENVIRONMENT").unwrap_or_else(|_| "production".to_string());
+        // println!("Length of ENVIRONMENT: {}", environment.len());
+    
+        // let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
+        // println!("Length of DATABASE_URL: {}", database_url.len());
+    
         let admin_key = env::var("ADMIN_KEY").unwrap_or_else(|_| "".to_string());
-        
+        eprintln!("Length of ADMIN_KEY: {}", admin_key.len());
+    
         // MongoDB
         let db_url = env::var("MONGO_DATABASE_URL")?;
+        eprintln!("Length of MONGO_DATABASE_URL: {}", db_url.len());
+    
         let db_name = env::var("MONGO_DATABASE_NAME")?;
-        let db_collection=  env::var("MONGO_COLLECTION_NAME")?;
+        eprintln!("Length of MONGO_DATABASE_NAME: {}", db_name.len());
+    
+        let db_collection = env::var("MONGO_COLLECTION_NAME")?;
+        eprintln!("Length of MONGO_COLLECTION_NAME: {}", db_collection.len());
+  
         let client = Client::with_uri_str(db_url).await.unwrap();
         let collection: Collection<FlattenedRepoData> = client.database(&db_name).collection(&db_collection);
         let mongo = MongoDb {
@@ -94,7 +115,7 @@ impl Config {
         };
 
         // Print out the env_file
-        println!("{:?}", env_file);
+        eprintln!("{:?}", env_file);
 
         // Toml file
         // Determine the file path based on the environment
@@ -107,7 +128,7 @@ impl Config {
         };
 
         // Print out the package
-        println!("{:?}", package);
+        eprintln!("{:?}", package);
 
         Ok(Config {
             env_file,
