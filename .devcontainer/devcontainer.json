@@ -19,7 +19,8 @@
 				"mhutchie.git-graph",
 				"eamodio.gitlens",
 				"GitHub.vscode-pull-request-github",
-				"mongodb.mongodb-vscode"
+				"mongodb.mongodb-vscode",
+				"ms-azuretools.vscode-bicep"
 			]
 		}
 	}
