@@ -6,12 +6,6 @@ env:
   AZURE_CONTAINER_REGISTRY: dfberryregistry
   IMAGE_NAME: server-source-board-rust
 on:
-  # Automatically trigger it when detected changes in repo. Remove comments to enable
-  #push:
-  #  branches: 
-  #    [ main ]
-
-  # Allow mannually trigger 
   workflow_dispatch:    
 
 permissions:
