@@ -5,7 +5,7 @@ on:
   # Automatically trigger it when detected changes in repo. Remove comments to enable
   push:
    branches: 
-     [ "main", "diberry/1128-github-actions" ]
+     [ "main" ]
 
 permissions:
   id-token: write
