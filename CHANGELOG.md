@@ -1,5 +1,9 @@
 # Change log
 
+# 0.5.11
+
+* Touch to live
+
 # 0.5.10
 
 * Fix bicep run

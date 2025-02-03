@@ -29,6 +29,7 @@ jobs:
 
     - name: Install and run Jest tests
       env:
+        PAT: ${{ secrets.PAT }} # Use for /config querystring parameter
         ADMIN_KEY: ${{ secrets.ADMIN_KEY }} # Use for /config querystring parameter
         BASE_URL: ${{ secrets.DEPLOYED_API_URL }} # Retrieve the API URL from secrets
         PAT_READ_ONLY: ${{ secrets.USER_TEST_TOKEN }} # Retrieve the test token from secrets
