@@ -1,5 +1,9 @@
 # Change log
 
+## 0.5.12
+
+* Touch source for deployment
+
 # 0.5.11
 
 * Touch to live
