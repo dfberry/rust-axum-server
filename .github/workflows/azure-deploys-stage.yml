@@ -6,8 +6,10 @@ env:
   AZURE_CONTAINER_REGISTRY: dfberryregistry
   IMAGE_NAME: server-source-board-rust
 on:
-  # Allow mannually trigger 
-  workflow_dispatch:    
+  push:
+    branches:
+      - main
+
 
 permissions:
   id-token: write
