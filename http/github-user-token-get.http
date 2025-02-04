@@ -1,4 +1,4 @@
-GET http://localhost:4000/github/user/token HTTP/1.1
+GET {{$dotenv %BACKEND_URL}}/github/user/token HTTP/1.1
 content-type: application/json
 
 {

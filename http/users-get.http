@@ -1,2 +1,2 @@
-GET http://localhost:4000/users?page=1&page_size=10 HTTP/1.1
+GET {{$dotenv %BACKEND_URL}}/users?page=1&page_size=10 HTTP/1.1
 content-type: application/json

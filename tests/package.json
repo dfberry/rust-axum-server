@@ -3,7 +3,8 @@
     "version": "1.0.0",
     "main": "index.js",
     "scripts": {
-        "test": "npm run clean && npm run build && jest",
+        "test": "npm run clean && npm run build && npm run test:config",
+        "test:config": "DOTENV_CONFIG_PATH=../.env.test jest",
         "build": "tsc",
         "clean": "rm -rf dist && rm -rf coverage"
     },

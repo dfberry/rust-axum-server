@@ -1,4 +1,4 @@
-POST http://localhost:4000/user HTTP/1.1
+POST {{$dotenv %BACKEND_URL}}/user HTTP/1.1
 content-type: application/json
 
 {

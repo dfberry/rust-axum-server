@@ -1,2 +1,2 @@
-GET http://localhost:4000/log?org=azure-samples&repo=azure-typescript-e2e-apps HTTP/1.1
+GET {{$dotenv %BACKEND_URL}}/log?org=azure-samples&repo=azure-typescript-e2e-apps HTTP/1.1
 content-type: application/json

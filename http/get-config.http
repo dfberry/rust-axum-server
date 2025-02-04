@@ -1,4 +1,5 @@
 # The runtime environment has ADMIN_KEY and the request query parameter is admin_key
 # The values must match
-GET http://localhost:4000/config?admin_key={{$dotenv %ADMIN_KEY}} HTTP/1.1
+GET {{$dotenv %BACKEND_URL}}/config?admin_key={{$dotenv %ADMIN_KEY}} HTTP/1.1
 content-type: application/json
+accept: application/json

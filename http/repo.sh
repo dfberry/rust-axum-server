@@ -1,4 +1,4 @@
-curl -X POST http://localhost:4000/github/repo \
+curl -X POST {{$dotenv %BACKEND_URL}}/github/repo \
     -H "Content-Type: application/json" \
     -d '{
         "token": "{{$dotenv %PAT}}",
