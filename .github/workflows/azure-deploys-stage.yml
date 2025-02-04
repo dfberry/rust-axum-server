@@ -4,7 +4,7 @@ env:
   AZURE_CONTAINER_APP_NAME: dfberrycontainerapp-stage
   AZURE_GROUP_NAME: rust-axum-server
   AZURE_CONTAINER_REGISTRY: dfberryregistry
-  IMAGE_NAME: server-source-board-rust
+  IMAGE_NAME: server-source-board-rust-stage
 on:
   workflow_dispatch:   
   push:
