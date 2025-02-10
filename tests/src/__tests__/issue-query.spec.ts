@@ -2,7 +2,7 @@ import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 import { stat } from 'fs';
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:4000';
 const route = '/github/query/issue';
 const PAT_READ_ONLY = process.env['PAT_READ_ONLY'] || '';
 
@@ -13,7 +13,7 @@ describe('API Issue Query', () => {
             const statusCode = 200;
 
             // Send a POST request with a body
-            const responseWithBody = await fetch(`${BASE_URL}${route}`, {
+            const responseWithBody = await fetch(`${BACKEND_URL}${route}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -40,7 +40,7 @@ describe('API Issue Query', () => {
 
             const statusCode = 400;
 
-                const response = await fetch(`${BASE_URL}${route}`, {
+                const response = await fetch(`${BACKEND_URL}${route}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ describe('API Issue Query', () => {
 
             const statusCode = 400;
 
-                const response = await fetch(`${BASE_URL}${route}`, {
+                const response = await fetch(`${BACKEND_URL}${route}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 })

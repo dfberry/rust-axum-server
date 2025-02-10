@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:4000';
 
 async function verifyUserResults(item: string) {
 
@@ -54,7 +54,7 @@ async function verifySuccessfulResults(route: string, response: Response, name: 
 
 }
 async function requestSuccessfulRoute(route: string, name: string) {
-    const response = await fetch(`${BASE_URL}${route}`, {
+    const response = await fetch(`${BACKEND_URL}${route}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/json',

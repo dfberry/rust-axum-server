@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:4000';
 const route = '/config';
 
 describe('API Config', () => {
@@ -11,7 +11,7 @@ describe('API Config', () => {
       expect(process.env['ADMIN_KEY']).not.toBeUndefined();
       expect(process.env['ADMIN_KEY']?.length).toBeGreaterThan(3);
 
-      const url = `${BASE_URL}${route}?admin_key=${process.env['ADMIN_KEY']}`;
+      const url = `${BACKEND_URL}${route}?admin_key=${process.env['ADMIN_KEY']}`;
 
       const response = await fetch(url, {
         method: 'GET',
@@ -37,7 +37,7 @@ describe('API Config', () => {
   describe('failure', () => {
     it('should not get API config JSON without query string, 404', async () => {
 
-        const response = await fetch(`${BASE_URL}${route}`, {
+        const response = await fetch(`${BACKEND_URL}${route}`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'
@@ -49,7 +49,7 @@ describe('API Config', () => {
     });
     it('should not get API config JSON without correct value, 401', async () => {
 
-      const response = await fetch(`${BASE_URL}${route}?admin_key=1234`);
+      const response = await fetch(`${BACKEND_URL}${route}?admin_key=1234`);
       expect(response.ok).toBe(false);
       expect(response.status).toBe(401);
 
