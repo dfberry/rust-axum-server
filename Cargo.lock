@@ -2539,7 +2539,7 @@ dependencies = [
 
 [[package]]
 name = "source-board-server"
-version = "0.5.12"
+version = "0.5.13"
 dependencies = [
  "anyhow",
  "axum",
@@ -2945,6 +2945,7 @@ dependencies = [
  "futures-util",
  "http",
  "http-body",
+ "http-body-util",
  "iri-string",
  "pin-project-lite",
  "tower 0.5.2",
