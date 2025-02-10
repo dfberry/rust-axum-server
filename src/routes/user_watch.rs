@@ -84,14 +84,16 @@ pub async fn post_db_watch_new_handler(
             let json_watch = json!(watch);
             Response::builder()
                 .header(http::header::CONTENT_TYPE, "application/json")
-                .status(StatusCode::OK)
+                .status(StatusCode::CREATED)
                 .body(Body::from(json_watch.to_string()))
                 .unwrap()
         }
-        Err(_) => {
+        Err(err) => {
+            let error_message = json!({ "error": format!("{}", err) }).to_string();
             Response::builder()
+                .header(http::header::CONTENT_TYPE, "application/json")
                 .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty())
+                .body(Body::from(error_message))
                 .unwrap()
         }
     }
@@ -194,7 +196,7 @@ pub async fn delete_user_watch_handler(
             match delete_user_watch(&mut connection, &github_user_id, &watch_id).await {
                 Ok(_) => {
                     Response::builder()
-                        .status(StatusCode::OK)
+                        .status(StatusCode::NO_CONTENT)
                         .body(Body::empty())
                         .unwrap()
                 }

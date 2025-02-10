@@ -1,0 +1,2 @@
+DELETE {{$dotenv %BACKEND_URL}}/user/{{$dotenv %DB_USER_ID}}/watch/{{$dotenv %DB_USER_WATCH_ID}} HTTP/1.1
+content-type: application/json
