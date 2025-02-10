@@ -7,16 +7,25 @@
 use axum::{
     extract::Request,
     middleware::{self, Next},
-    response::Response,
+    response::{
+        IntoResponse, 
+        Response
+    }, 
     routing::{get, post, delete},
     Router,
+    http::StatusCode
 };
 use axum::Extension;
 use hyper::header::HeaderValue;
 //use std::env;
 use std::sync::{Arc, RwLock};
-use tower::ServiceBuilder;
-use tower_http::trace::TraceLayer;
+use tower::{ServiceBuilder, BoxError};
+use tower_http::{
+    trace::TraceLayer,
+    catch_panic::CatchPanicLayer,
+    classify::{ServerErrorsFailureClass, SharedClassifier},
+    sensitive_headers::SetSensitiveHeadersLayer,
+};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 //--------------------------------------------------
 // Add the following imports for the new modules
@@ -56,6 +65,30 @@ use routes::user_watch::{
 use routes::log::get_db_mongo_log_handler;
 use state::{AppState, Config};
 //--------------------------------------------------
+
+
+async fn response_version_header(request: Request, next: Next) -> Response {
+    let mut response = next.run(request).await;
+    let version = get_cargo_version().await.unwrap();
+
+    // do something with `response`...
+    response.headers_mut().insert(
+        "x-source-board-version",
+        HeaderValue::from_str(&version).unwrap(),
+    );
+
+    response
+}
+
+// This handler converts errors caught by the layer into an HTTP response.
+async fn handle_layer_error(err: BoxError) -> impl IntoResponse {
+    eprintln!("Unhandled service error: {:?}", err);
+    (
+        StatusCode::INTERNAL_SERVER_ERROR,
+        format!("Something went wrong: {}", err),
+    )
+}
+
 // main
 #[tokio::main]
 async fn main() {
@@ -98,19 +131,21 @@ async fn main() {
         .route("/github/repo/issues", get(github_get_repo_issues_handler)) 
         .route("/github/repo/prs", get(github_get_repo_prs_handler)) 
         .route("/github/repo", post(github_post_repo_handler))
+       
         .route("/github/user/token", get(github_get_user_by_token))
         .route("/github/user/rate-limit",get(github_get_user_rate_limit_handler)) 
         .route("/github/user/:username",get(github_get_user_profile_handler))
         .route("/github/user", post(github_get_user_handler))
 
         .route("/users/watches", get(get_db_watches_all_paginated_handler))
-        .route("/users", get(get_db_users_all_paginated_handler))
-
+ 
         .route("/user/:username/watches", get(get_db_watches_by_user_all_paginated_handler))
         .route("/user/:username/watch/:watch_id", get(get_user_watch_handler))
         .route("/user/:username/watch/:watch_id", delete(delete_user_watch_handler))
         .route("/user/:username/watch", post(post_db_watch_new_handler))
         .route("/user/:username", get(get_db_user_get_handler))
+
+        .route("/users", get(get_db_users_all_paginated_handler))
         .route("/user", post(post_db_user_new_handler))
 
         .route("/log", get(get_db_mongo_log_handler))
@@ -129,16 +164,4 @@ async fn main() {
     let listener = tokio::net::TcpListener::bind(&addr).await.unwrap();
     println!("listening on {}", listener.local_addr().unwrap());
     axum::serve(listener, app).await.unwrap();
-}
-async fn response_version_header(request: Request, next: Next) -> Response {
-    let mut response = next.run(request).await;
-    let version = get_cargo_version().await.unwrap();
-
-    // do something with `response`...
-    response.headers_mut().insert(
-        "x-source-board-version",
-        HeaderValue::from_str(&version).unwrap(),
-    );
-
-    response
 }
