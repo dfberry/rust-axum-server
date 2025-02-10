@@ -22,6 +22,7 @@ use crate::database::watch::{
     delete_user_watch,
     get_user_watch
 };
+use crate::utils::orgrepo::is_valid_orgrepo;
 
 use serde::Deserialize;
 use serde_json::json;
@@ -30,6 +31,33 @@ use serde_json::json;
 #[derive(Deserialize)]
 pub struct NewWatchRequestBody {
     repo_name: String
+}
+use diesel::result::Error as DieselError;
+pub fn handle_diesel_error(err: DieselError) -> Response {
+    match err {
+        DieselError::NotFound => {
+            // Return NOT_FOUND status if the watch or resource is not found.
+            Response::builder()
+                .status(StatusCode::NOT_FOUND)
+                .body(Body::empty())
+                .unwrap()
+        }
+        _ => {
+            let error_message = json!({ "error": format!("{}", err) }).to_string();
+            // If error message mentions "user", return BAD_REQUEST.
+            if error_message.to_lowercase().contains("user") {
+                Response::builder()
+                    .status(StatusCode::BAD_REQUEST)
+                    .body(Body::from(json!({ "error": format!("{}", err) }).to_string()))
+                    .unwrap()
+            } else {
+                Response::builder()
+                    .status(StatusCode::INTERNAL_SERVER_ERROR)
+                    .body(Body::from(error_message))
+                    .unwrap()
+            }
+        }
+    }
 }
 
 pub async fn get_user_watch_handler(
@@ -55,12 +83,7 @@ pub async fn get_user_watch_handler(
                 .body(Body::from(json_watch.to_string()))
                 .unwrap()
         }
-        Err(_) => {
-            Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty())
-                .unwrap()
-        }
+        Err(err) => handle_diesel_error(err),
     }
 }
 
@@ -73,9 +96,18 @@ pub async fn post_db_watch_new_handler(
     let repo_name = payload.repo_name.clone();
 
     if repo_name.is_empty() || db_user_id.is_empty() {
+        let error_message = "Required fields are empty";
         return Response::builder()
             .status(StatusCode::BAD_REQUEST)
-            .body(Body::empty())
+            .body(Body::from(error_message))
+            .unwrap();
+    }
+
+    if(!is_valid_orgrepo(&repo_name)) {
+        let error_message = "Malformed repo: repo_name should be in the format org/repo or user/repo";
+        return Response::builder()
+            .status(StatusCode::BAD_REQUEST)
+            .body(Body::from(error_message))
             .unwrap();
     }
 
@@ -88,14 +120,7 @@ pub async fn post_db_watch_new_handler(
                 .body(Body::from(json_watch.to_string()))
                 .unwrap()
         }
-        Err(err) => {
-            let error_message = json!({ "error": format!("{}", err) }).to_string();
-            Response::builder()
-                .header(http::header::CONTENT_TYPE, "application/json")
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::from(error_message))
-                .unwrap()
-        }
+        Err(err) => handle_diesel_error(err),
     }
 }
 
@@ -120,12 +145,7 @@ pub async fn get_db_watches_all_paginated_handler(
                 .body(Body::from(json_response.to_string()))
                 .unwrap()
         }
-        Err(_) => {
-            Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty())
-                .unwrap()
-        }
+        Err(err) => handle_diesel_error(err),
     }
 }
 
@@ -165,12 +185,7 @@ pub async fn get_db_watches_by_user_all_paginated_handler(
                 .body(Body::from(json_response.to_string()))
                 .unwrap()
         }
-        Err(_) => {
-            Response::builder()
-                .status(StatusCode::INTERNAL_SERVER_ERROR)
-                .body(Body::empty())
-                .unwrap()
-        }
+        Err(err) => handle_diesel_error(err),
     }
 }
 
@@ -200,19 +215,17 @@ pub async fn delete_user_watch_handler(
                         .body(Body::empty())
                         .unwrap()
                 }
-                Err(_) => {
+                Err(err) => {
+                    let error_message = json!({ "error": format!("{}", err) }).to_string();
+                    println!("Error: {}", error_message);
+        
                     Response::builder()
                         .status(StatusCode::INTERNAL_SERVER_ERROR)
-                        .body(Body::empty())
+                        .body(Body::from(error_message))
                         .unwrap()
                 }
             }
         }
-        Err(_) => {
-            Response::builder()
-                .status(StatusCode::NOT_FOUND)
-                .body(Body::empty())
-                .unwrap()
-        }
+        Err(err) => handle_diesel_error(err),
     }
 }

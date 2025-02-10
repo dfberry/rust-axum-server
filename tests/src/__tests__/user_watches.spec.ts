@@ -48,3 +48,49 @@ describe('API User Watch Single Flow', () => {
     expect([200, 204]).toContain(deleteResponse.status);
   });
 });
+describe('API User Watch with bad User', () => {
+  it('should return 400 when no user id is provided', async () => {
+    const response = await fetch(`${BACKEND_URL}/user//watches`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+    expect(response.status).toBe(400);
+  });
+  it('should return 404 when asking for watches for a non-existent user', async () => {
+    const nonExistentUser = "nonExistentUser";
+    const response = await fetch(`${BACKEND_URL}/user/${nonExistentUser}/watches`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+    });
+    expect(response.status).toBe(404);
+  });
+});
+describe('API User Watch Invalid Repo', () => {
+  const malformedRepos = [
+    "invalidRepo",
+    "orgrepo",
+    "org/",
+    "/repo",
+    "org//repo",
+    "https://github.com/dfberry/rust-axum-server"
+  ];
+
+  // Use test.each to run a test for each malformed repo
+  test.each(malformedRepos)(
+    "should return 400 for malformed repo '%s'",
+    async (malformedRepo) => {
+      const response = await fetch(`${BACKEND_URL}/user/${USER_ID}/watch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ repo_name: malformedRepo }),
+      });
+      expect(response.status).toBe(400);
+    }
+  );
+});
