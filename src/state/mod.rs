@@ -83,7 +83,7 @@ impl Config {
         // let database_url = env::var("DATABASE_URL").unwrap_or_else(|_| "postgres://localhost:5432".to_string());
         // println!("Length of DATABASE_URL: {}", database_url.len());
     
-        let admin_key = env::var("ADMIN_KEY").unwrap_or_else(|_| "".to_string());
+        let admin_key = env::var("ADMIN_KEY")?;
         eprintln!("Length of ADMIN_KEY: {}", admin_key.len());
     
         // MongoDB
