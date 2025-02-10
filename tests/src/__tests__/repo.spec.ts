@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:4000';
 const route = '/github/repo';
 const PAT_READ_ONLY = process.env['PAT_READ_ONLY'] || '';
 
@@ -11,7 +11,7 @@ describe('API Repo', () => {
     it('should get API /github/repo 200', async () => {
 
       // Send a POST request with a body
-      const responseWithBody = await fetch(`${BASE_URL}${route}`, {
+      const responseWithBody = await fetch(`${BACKEND_URL}${route}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -35,7 +35,7 @@ describe('API Repo', () => {
     });
     it('should get API /github/repo without token, use default token', async () => {
       try {
-        const responseWithoutBodyToken = await fetch(`${BASE_URL}${route}`, {
+        const responseWithoutBodyToken = await fetch(`${BACKEND_URL}${route}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ describe('API Repo', () => {
   describe('failure', () => {
     it('should get API /github/repo 400 missing param repo_name', async () => {
       try {
-        const response = await fetch(`${BASE_URL}${route}`, {
+        const response = await fetch(`${BACKEND_URL}${route}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -86,7 +86,7 @@ describe('API Repo', () => {
     });
     it('should get API /github/repo 400 missing param org_or_user', async () => {
       try {
-        const response = await fetch(`${BASE_URL}${route}`, {
+        const response = await fetch(`${BACKEND_URL}${route}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ describe('API Repo', () => {
     it('should get API /github/repo 401 without body', async () => {
       // Send a POST request without a body to expect a 401
       try {
-        const response = await fetch(`${BASE_URL}${route}`, {
+        const response = await fetch(`${BACKEND_URL}${route}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

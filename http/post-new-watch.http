@@ -1,0 +1,6 @@
+POST {{$dotenv %BACKEND_URL}}/user/{{$dotenv %DB_USER_ID}}/watch HTTP/1.1
+content-type: application/json
+
+{
+   "repo_name": "Azure-Samples/azure-typescript-e2e-apps"
+}

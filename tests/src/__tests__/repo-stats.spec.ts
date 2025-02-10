@@ -1,7 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import 'dotenv/config';
 
-const BASE_URL = process.env['BASE_URL'] || 'http://localhost:4000';
+const BACKEND_URL = process.env['BACKEND_URL'] || 'http://localhost:4000';
 const route = '/github/repos/stats';
 
 describe('API Repo Stat', () => {
@@ -10,7 +10,7 @@ describe('API Repo Stat', () => {
 
 
       // Send a POST request with a body
-      const responseWithBody = await fetch(`${BASE_URL}${route}`, {
+      const responseWithBody = await fetch(`${BACKEND_URL}${route}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ describe('API Repo Stat', () => {
     it('should get API repos/stats 400 without body', async () => {
       // Send a POST request without a body to expect a 400 Bad Request
       try {
-        const response = await fetch(`${BASE_URL}${route}`, {
+        const response = await fetch(`${BACKEND_URL}${route}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
         });

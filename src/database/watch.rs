@@ -3,6 +3,7 @@ use diesel::prelude::*;
 use diesel::result::Error;
 use crate::schema::osb_user_custom_config;
 use crate::database::page::{PagedResult, PageRequest};
+use crate::database::user::{User, get_user};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize, Queryable, Selectable, QueryableByName)]
@@ -67,6 +68,12 @@ pub async fn create_watch(
 
     use crate::schema::osb_user_custom_config;
 
+    // does user exist
+    let user = get_user(connection, user_id).await;
+    if user.is_none() {
+        return Err(Error::NotFound);
+    }
+
     let new_watch = NewWatch { 
         user_id: &user_id, 
         repo_name: &repo_name
@@ -87,6 +94,12 @@ pub async fn list_watches_by_user(
     use crate::schema::osb_user_custom_config::dsl::*;
 
     println!("Listing watches for user: {}", db_user_id);
+
+    // does user exist
+    let user = get_user(connection, db_user_id).await;
+    if user.is_none() {
+        return Err(Error::NotFound);
+    }
 
     let offset = (page - 1) * page_size;
     let limit = page_size + 1; // Fetch one more item to check if there are more pages
@@ -123,6 +136,12 @@ pub async fn get_user_watch(
 ) -> Result<Watch, Error> {
     use crate::schema::osb_user_custom_config::dsl::*;
 
+    // does user exist
+    let user = get_user(connection, db_user_id).await;
+    if user.is_none() {
+        return Err(Error::NotFound);
+    }
+
     osb_user_custom_config
         .filter(user_id.eq(db_user_id).and(id.eq(watch_id)))
         .first::<Watch>(connection)
@@ -137,6 +156,11 @@ pub async fn delete_user_watch(
 
     println!("Deleting user {} watch: {}", db_user_id, watch_id);
 
+    // does user exist
+    let user = get_user(connection, db_user_id).await;
+    if user.is_none() {
+        return Err(Error::NotFound);
+    }
 
     let result = diesel::delete(osb_user_custom_config.filter(user_id.eq(db_user_id).and(id.eq(watch_id))))
         .execute(connection);

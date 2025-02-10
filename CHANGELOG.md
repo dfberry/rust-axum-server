@@ -1,5 +1,12 @@
 # Change log
 
+## 0.5.13
+
+* Fix: create new watch - use endpoint id and poller for stage db URL on neon
+    * Neon now has a local-dev db
+    * main.rs has better anti-crash support
+    * assumes admin key is set
+
 ## 0.5.12
 
 * Touch source for deployment
